@@ -85,10 +85,14 @@ function normalisePhoneme(value: string) {
 }
 
 function getSymbols(value: string) {
-  return Array.from(normalisePhoneme(value));
+  return Array.from(
+    normalisePhoneme(value),
+  );
 }
 
-function createGrid(words: WordEntry[]) {
+function createGrid(
+  words: WordEntry[],
+) {
   const grid = Array.from(
     { length: gridSize },
     (_, row) =>
@@ -96,40 +100,57 @@ function createGrid(words: WordEntry[]) {
         { length: gridSize },
         (_, column) =>
           fillerSymbols[
-            (row * gridSize + column) %
+            (
+              row * gridSize +
+              column
+            ) %
               fillerSymbols.length
           ],
       ),
   );
 
-  words.forEach((entry, index) => {
-    const placement = placements[index];
+  words.forEach(
+    (entry, index) => {
+      const placement =
+        placements[index];
 
-    if (!placement) {
-      return;
-    }
-
-    const symbols = getSymbols(entry.phoneme);
-
-    symbols.forEach((symbol, symbolIndex) => {
-      const row =
-        placement.row +
-        placement.rowDirection * symbolIndex;
-
-      const column =
-        placement.column +
-        placement.columnDirection * symbolIndex;
-
-      if (
-        row >= 0 &&
-        row < gridSize &&
-        column >= 0 &&
-        column < gridSize
-      ) {
-        grid[row][column] = symbol;
+      if (!placement) {
+        return;
       }
-    });
-  });
+
+      const symbols =
+        getSymbols(
+          entry.phoneme,
+        );
+
+      symbols.forEach(
+        (
+          symbol,
+          symbolIndex,
+        ) => {
+          const row =
+            placement.row +
+            placement.rowDirection *
+              symbolIndex;
+
+          const column =
+            placement.column +
+            placement.columnDirection *
+              symbolIndex;
+
+          if (
+            row >= 0 &&
+            row < gridSize &&
+            column >= 0 &&
+            column < gridSize
+          ) {
+            grid[row][column] =
+              symbol;
+          }
+        },
+      );
+    },
+  );
 
   return grid;
 }
@@ -138,75 +159,111 @@ function getSelectedCoordinates(
   start: Coordinate,
   end: Coordinate,
 ) {
-  const rowDifference = end.row - start.row;
+  const rowDifference =
+    end.row - start.row;
+
   const columnDifference =
     end.column - start.column;
 
   const validLine =
     rowDifference === 0 ||
     columnDifference === 0 ||
-    Math.abs(rowDifference) ===
-      Math.abs(columnDifference);
+    Math.abs(
+      rowDifference,
+    ) ===
+      Math.abs(
+        columnDifference,
+      );
 
   if (!validLine) {
     return [];
   }
 
-  const rowDirection = Math.sign(rowDifference);
+  const rowDirection =
+    Math.sign(
+      rowDifference,
+    );
+
   const columnDirection =
-    Math.sign(columnDifference);
+    Math.sign(
+      columnDifference,
+    );
 
   const length =
     Math.max(
-      Math.abs(rowDifference),
-      Math.abs(columnDifference),
+      Math.abs(
+        rowDifference,
+      ),
+      Math.abs(
+        columnDifference,
+      ),
     ) + 1;
 
   return Array.from(
     { length },
     (_, index) => ({
-      row: start.row + rowDirection * index,
+      row:
+        start.row +
+        rowDirection *
+          index,
+
       column:
         start.column +
-        columnDirection * index,
+        columnDirection *
+          index,
     }),
   );
 }
 
 export default function WordSearchPage() {
-  const [words, setWords] = useState<WordEntry[]>([
-    {
-      phoneme: "/θɪn/",
-      english: "thin",
-    },
-    {
-      phoneme: "/kæt/",
-      english: "cat",
-    },
-    {
-      phoneme: "/dɒg/",
-      english: "dog",
-    },
-    {
-      phoneme: "/fɪʃ/",
-      english: "fish",
-    },
-    {
-      phoneme: "/sʌn/",
-      english: "sun",
-    },
-  ]);
+  const [words, setWords] =
+    useState<WordEntry[]>([
+      {
+        phoneme: "/θɪn/",
+        english: "thin",
+      },
+      {
+        phoneme: "/kæt/",
+        english: "cat",
+      },
+      {
+        phoneme: "/dɒg/",
+        english: "dog",
+      },
+      {
+        phoneme: "/fɪʃ/",
+        english: "fish",
+      },
+      {
+        phoneme: "/sʌn/",
+        english: "sun",
+      },
+    ]);
 
-  const [selectionStart, setSelectionStart] =
-    useState<Coordinate | null>(null);
+  const [
+    selectionStart,
+    setSelectionStart,
+  ] =
+    useState<Coordinate | null>(
+      null,
+    );
 
-  const [selectedCells, setSelectedCells] =
+  const [
+    selectedCells,
+    setSelectedCells,
+  ] =
     useState<Coordinate[]>([]);
 
-  const [foundWords, setFoundWords] =
+  const [
+    foundWords,
+    setFoundWords,
+  ] =
     useState<string[]>([]);
 
-  const [message, setMessage] = useState(
+  const [
+    message,
+    setMessage,
+  ] = useState(
     "Select the first and last symbol of a word.",
   );
 
@@ -219,21 +276,35 @@ export default function WordSearchPage() {
     field: keyof WordEntry,
     value: string,
   ) {
-    const updatedWords = [...words];
+    const updatedWords = [
+      ...words,
+    ];
 
     updatedWords[index] = {
       ...updatedWords[index],
       [field]: value,
     };
 
-    setWords(updatedWords);
+    setWords(
+      updatedWords,
+    );
+
     resetPreview();
   }
 
   function resetPreview() {
-    setSelectionStart(null);
-    setSelectedCells([]);
-    setFoundWords([]);
+    setSelectionStart(
+      null,
+    );
+
+    setSelectedCells(
+      [],
+    );
+
+    setFoundWords(
+      [],
+    );
+
     setMessage(
       "Select the first and last symbol of a word.",
     );
@@ -245,8 +316,10 @@ export default function WordSearchPage() {
   ) {
     return selectedCells.some(
       (coordinate) =>
-        coordinate.row === row &&
-        coordinate.column === column,
+        coordinate.row ===
+          row &&
+        coordinate.column ===
+          column,
     );
   }
 
@@ -260,8 +333,13 @@ export default function WordSearchPage() {
     };
 
     if (!selectionStart) {
-      setSelectionStart(coordinate);
-      setSelectedCells([coordinate]);
+      setSelectionStart(
+        coordinate,
+      );
+
+      setSelectedCells([
+        coordinate,
+      ]);
 
       setMessage(
         "Now select the final symbol of the word.",
@@ -270,14 +348,22 @@ export default function WordSearchPage() {
       return;
     }
 
-    const coordinates = getSelectedCoordinates(
-      selectionStart,
-      coordinate,
-    );
+    const coordinates =
+      getSelectedCoordinates(
+        selectionStart,
+        coordinate,
+      );
 
-    if (coordinates.length === 0) {
-      setSelectionStart(null);
-      setSelectedCells([]);
+    if (
+      coordinates.length === 0
+    ) {
+      setSelectionStart(
+        null,
+      );
+
+      setSelectedCells(
+        [],
+      );
 
       setMessage(
         "Words must be selected in a straight line. Try again.",
@@ -286,29 +372,47 @@ export default function WordSearchPage() {
       return;
     }
 
-    const selectedWord = coordinates
-      .map(
-        (cell) =>
-          grid[cell.row][cell.column],
+    const selectedWord =
+      coordinates
+        .map(
+          (cell) =>
+            grid[
+              cell.row
+            ][cell.column],
+        )
+        .join("");
+
+    const reversedWord =
+      Array.from(
+        selectedWord,
       )
-      .join("");
+        .reverse()
+        .join("");
 
-    const reversedWord = Array.from(selectedWord)
-      .reverse()
-      .join("");
+    const matchedWord =
+      words.find(
+        (entry) => {
+          const target =
+            normalisePhoneme(
+              entry.phoneme,
+            );
 
-    const matchedWord = words.find((entry) => {
-      const target =
-        normalisePhoneme(entry.phoneme);
-
-      return (
-        target === selectedWord ||
-        target === reversedWord
+          return (
+            target ===
+              selectedWord ||
+            target ===
+              reversedWord
+          );
+        },
       );
-    });
 
-    setSelectedCells(coordinates);
-    setSelectionStart(null);
+    setSelectedCells(
+      coordinates,
+    );
+
+    setSelectionStart(
+      null,
+    );
 
     if (matchedWord) {
       const target =
@@ -316,7 +420,11 @@ export default function WordSearchPage() {
           matchedWord.phoneme,
         );
 
-      if (!foundWords.includes(target)) {
+      if (
+        !foundWords.includes(
+          target,
+        )
+      ) {
         setFoundWords([
           ...foundWords,
           target,
@@ -340,10 +448,16 @@ export default function WordSearchPage() {
   }
 
   function generateHtml() {
-    const safeWords = JSON.stringify(words);
-    const safeGrid = JSON.stringify(grid);
+    const safeWords =
+      JSON.stringify(words);
+
+    const safeGrid =
+      JSON.stringify(grid);
+
     const safeGridSize =
-      JSON.stringify(gridSize);
+      JSON.stringify(
+        gridSize,
+      );
 
     const html = `<!DOCTYPE html>
 <html lang="en">
@@ -410,6 +524,11 @@ export default function WordSearchPage() {
       background: #eeeeef;
     }
 
+    .cell:focus {
+      outline: 3px solid #1b1b1d;
+      outline-offset: 2px;
+    }
+
     .cell.selected {
       background: #39875b;
       color: #ffffff;
@@ -427,6 +546,9 @@ export default function WordSearchPage() {
       padding: 0.6rem 0.8rem;
       border: 1px solid #d8d8dc;
       border-radius: 8px;
+      background: #f7f7f8;
+      font-weight: 600;
+      cursor: help;
     }
 
     .wordItem.found {
@@ -439,6 +561,10 @@ export default function WordSearchPage() {
       min-height: 1.5rem;
       margin-top: 1rem;
       font-weight: 700;
+    }
+
+    .progress {
+      margin-top: 1rem;
     }
 
     @media (max-width: 650px) {
@@ -464,14 +590,18 @@ export default function WordSearchPage() {
 <body>
   <main>
     <section class="card">
-      <h1>Phoneme Word Search</h1>
+      <h1>
+        Phoneme Word Search
+      </h1>
 
       <p>
         Find each phoneme word in the grid.
         Select its first symbol and then its final symbol.
       </p>
 
-      <h2>Words to Find</h2>
+      <h2>
+        Words to Find
+      </h2>
 
       <ul
         id="wordList"
@@ -491,32 +621,68 @@ export default function WordSearchPage() {
       >
         Select the first and last symbol of a word.
       </div>
+
+      <p class="progress">
+        Found:
+        <strong id="progress">
+          0 / ${words.length}
+        </strong>
+      </p>
     </section>
   </main>
 
   <script>
     const words = ${safeWords};
     const gridData = ${safeGrid};
-    const gridSize = ${safeGridSize};
 
     const gridElement =
-      document.getElementById("grid");
+      document.getElementById(
+        "grid"
+      );
 
     const wordList =
-      document.getElementById("wordList");
+      document.getElementById(
+        "wordList"
+      );
 
     const message =
-      document.getElementById("message");
+      document.getElementById(
+        "message"
+      );
+
+    const progress =
+      document.getElementById(
+        "progress"
+      );
 
     let selectionStart = null;
     let selectedCells = [];
     let foundWords = [];
 
-    function normalisePhoneme(value) {
-      return value
-        .trim()
-        .replace(/^\\\\/|\\\\/$/g, "")
-        .toLowerCase();
+    function normalisePhoneme(
+      value
+    ) {
+      let result =
+        value.trim();
+
+      if (
+        result.startsWith("/")
+      ) {
+        result =
+          result.slice(1);
+      }
+
+      if (
+        result.endsWith("/")
+      ) {
+        result =
+          result.slice(
+            0,
+            -1
+          );
+      }
+
+      return result.toLowerCase();
     }
 
     function getSelectedCoordinates(
@@ -524,44 +690,65 @@ export default function WordSearchPage() {
       end
     ) {
       const rowDifference =
-        end.row - start.row;
+        end.row -
+        start.row;
 
       const columnDifference =
-        end.column - start.column;
+        end.column -
+        start.column;
 
       const validLine =
         rowDifference === 0 ||
         columnDifference === 0 ||
-        Math.abs(rowDifference) ===
-          Math.abs(columnDifference);
+        Math.abs(
+          rowDifference
+        ) ===
+          Math.abs(
+            columnDifference
+          );
 
       if (!validLine) {
         return [];
       }
 
       const rowDirection =
-        Math.sign(rowDifference);
+        Math.sign(
+          rowDifference
+        );
 
       const columnDirection =
-        Math.sign(columnDifference);
+        Math.sign(
+          columnDifference
+        );
 
       const length =
         Math.max(
-          Math.abs(rowDifference),
-          Math.abs(columnDifference)
+          Math.abs(
+            rowDifference
+          ),
+          Math.abs(
+            columnDifference
+          )
         ) + 1;
 
       return Array.from(
-        { length: length },
-        function (_, index) {
+        {
+          length: length
+        },
+        function (
+          _,
+          index
+        ) {
           return {
             row:
               start.row +
-              rowDirection * index,
+              rowDirection *
+                index,
 
             column:
               start.column +
-              columnDirection * index
+              columnDirection *
+                index
           };
         }
       );
@@ -571,63 +758,95 @@ export default function WordSearchPage() {
       row,
       column
     ) {
-      return row + ":" + column;
+      return (
+        row +
+        ":" +
+        column
+      );
     }
 
     function updateGridSelection() {
       document
-        .querySelectorAll(".cell")
-        .forEach(function (cell) {
-          cell.classList.remove("selected");
-        });
+        .querySelectorAll(
+          ".cell"
+        )
+        .forEach(
+          function (
+            cell
+          ) {
+            cell.classList.remove(
+              "selected"
+            );
+          }
+        );
 
       selectedCells.forEach(
-        function (coordinate) {
+        function (
+          coordinate
+        ) {
           const cell =
             document.querySelector(
               '[data-key="' +
-              coordinateKey(
-                coordinate.row,
-                coordinate.column
-              ) +
-              '"]'
+                coordinateKey(
+                  coordinate.row,
+                  coordinate.column
+                ) +
+                '"]'
             );
 
           if (cell) {
-            cell.classList.add("selected");
+            cell.classList.add(
+              "selected"
+            );
           }
         }
       );
     }
 
     function updateWordList() {
-      wordList.innerHTML = "";
+      wordList.innerHTML =
+        "";
 
-      words.forEach(function (entry) {
-        const item =
-          document.createElement("li");
+      words.forEach(
+        function (
+          entry
+        ) {
+          const item =
+            document.createElement(
+              "li"
+            );
 
-        const target =
-          normalisePhoneme(
-            entry.phoneme
+          const target =
+            normalisePhoneme(
+              entry.phoneme
+            );
+
+          item.className =
+            "wordItem" +
+            (
+              foundWords.includes(
+                target
+              )
+                ? " found"
+                : ""
+            );
+
+          item.textContent =
+            entry.phoneme;
+
+          item.title =
+            entry.english;
+
+          wordList.appendChild(
+            item
           );
+        }
+      );
 
-        item.className =
-          "wordItem" +
-          (
-            foundWords.includes(target)
-              ? " found"
-              : ""
-          );
-
-        item.textContent =
-          entry.phoneme;
-
-        item.title =
-          entry.english;
-
-        wordList.appendChild(item);
-      });
+      progress.textContent =
+        foundWords.length +
+        " / " +
+        words.length;
     }
 
     function handleCellClick(
@@ -639,9 +858,15 @@ export default function WordSearchPage() {
         column: column
       };
 
-      if (!selectionStart) {
-        selectionStart = coordinate;
-        selectedCells = [coordinate];
+      if (
+        !selectionStart
+      ) {
+        selectionStart =
+          coordinate;
+
+        selectedCells = [
+          coordinate
+        ];
 
         updateGridSelection();
 
@@ -657,9 +882,15 @@ export default function WordSearchPage() {
           coordinate
         );
 
-      if (coordinates.length === 0) {
-        selectionStart = null;
-        selectedCells = [];
+      if (
+        coordinates.length ===
+        0
+      ) {
+        selectionStart =
+          null;
+
+        selectedCells =
+          [];
 
         updateGridSelection();
 
@@ -671,33 +902,50 @@ export default function WordSearchPage() {
 
       const selectedWord =
         coordinates
-          .map(function (cell) {
-            return gridData[
-              cell.row
-            ][cell.column];
-          })
+          .map(
+            function (
+              cell
+            ) {
+              return gridData[
+                cell.row
+              ][
+                cell.column
+              ];
+            }
+          )
           .join("");
 
       const reversedWord =
-        Array.from(selectedWord)
+        Array.from(
+          selectedWord
+        )
           .reverse()
           .join("");
 
       const matchedWord =
-        words.find(function (entry) {
-          const target =
-            normalisePhoneme(
-              entry.phoneme
+        words.find(
+          function (
+            entry
+          ) {
+            const target =
+              normalisePhoneme(
+                entry.phoneme
+              );
+
+            return (
+              target ===
+                selectedWord ||
+              target ===
+                reversedWord
             );
+          }
+        );
 
-          return (
-            target === selectedWord ||
-            target === reversedWord
-          );
-        });
+      selectedCells =
+        coordinates;
 
-      selectedCells = coordinates;
-      selectionStart = null;
+      selectionStart =
+        null;
 
       updateGridSelection();
 
@@ -708,9 +956,13 @@ export default function WordSearchPage() {
           );
 
         if (
-          !foundWords.includes(target)
+          !foundWords.includes(
+            target
+          )
         ) {
-          foundWords.push(target);
+          foundWords.push(
+            target
+          );
 
           updateWordList();
 
@@ -720,6 +972,14 @@ export default function WordSearchPage() {
             ', meaning "' +
             matchedWord.english +
             '".';
+
+          if (
+            foundWords.length ===
+            words.length
+          ) {
+            message.textContent =
+              "Great work. You found all of the phoneme words.";
+          }
         } else {
           message.textContent =
             "You have already found that word.";
@@ -733,7 +993,10 @@ export default function WordSearchPage() {
     }
 
     gridData.forEach(
-      function (row, rowIndex) {
+      function (
+        row,
+        rowIndex
+      ) {
         row.forEach(
           function (
             symbol,
@@ -744,9 +1007,14 @@ export default function WordSearchPage() {
                 "button"
               );
 
-            button.type = "button";
-            button.className = "cell";
-            button.textContent = symbol;
+            button.type =
+              "button";
+
+            button.className =
+              "cell";
+
+            button.textContent =
+              symbol;
 
             button.dataset.key =
               coordinateKey(
@@ -757,9 +1025,15 @@ export default function WordSearchPage() {
             button.setAttribute(
               "aria-label",
               "Row " +
-                (rowIndex + 1) +
+                (
+                  rowIndex +
+                  1
+                ) +
                 ", column " +
-                (columnIndex + 1) +
+                (
+                  columnIndex +
+                  1
+                ) +
                 ", symbol " +
                 symbol
             );
@@ -787,33 +1061,49 @@ export default function WordSearchPage() {
 </body>
 </html>`;
 
-    const blob = new Blob([html], {
-      type: "text/html",
-    });
+    const blob = new Blob(
+      [html],
+      {
+        type: "text/html",
+      },
+    );
 
     const url =
-      URL.createObjectURL(blob);
+      URL.createObjectURL(
+        blob,
+      );
 
     const link =
-      document.createElement("a");
+      document.createElement(
+        "a",
+      );
 
     link.href = url;
+
     link.download =
       "phonemeWordSearch.html";
 
-    document.body.appendChild(link);
+    document.body.appendChild(
+      link,
+    );
 
     link.click();
 
-    document.body.removeChild(link);
+    document.body.removeChild(
+      link,
+    );
 
-    URL.revokeObjectURL(url);
+    URL.revokeObjectURL(
+      url,
+    );
   }
 
   return (
     <section>
       <div className="page-heading">
-        <h2>Word Search Builder</h2>
+        <h2>
+          Word Search Builder
+        </h2>
 
         <p>
           Configure a small phoneme word list,
@@ -824,7 +1114,9 @@ export default function WordSearchPage() {
 
       <div className="builderLayout">
         <section className="builderCard">
-          <h3>Activity Settings</h3>
+          <h3>
+            Activity Settings
+          </h3>
 
           <p className="mutedText">
             Enter five short phoneme words and
@@ -832,58 +1124,74 @@ export default function WordSearchPage() {
           </p>
 
           <div className="wordSettings">
-            {words.map((entry, index) => (
-              <div
-                className="wordSetting"
-                key={`word${index}`}
-              >
-                <strong>
-                  Word {index + 1}
-                </strong>
+            {words.map(
+              (
+                entry,
+                index,
+              ) => (
+                <div
+                  className="wordSetting"
+                  key={`word${index}`}
+                >
+                  <strong>
+                    Word{" "}
+                    {index + 1}
+                  </strong>
 
-                <div className="formGroup">
-                  <label
-                    htmlFor={`phoneme${index}`}
-                  >
-                    Phoneme word
-                  </label>
+                  <div className="formGroup">
+                    <label
+                      htmlFor={`phoneme${index}`}
+                    >
+                      Phoneme word
+                    </label>
 
-                  <input
-                    id={`phoneme${index}`}
-                    type="text"
-                    value={entry.phoneme}
-                    onChange={(event) => {
-                      updateWord(
-                        index,
-                        "phoneme",
-                        event.target.value,
-                      );
-                    }}
-                  />
+                    <input
+                      id={`phoneme${index}`}
+                      type="text"
+                      value={
+                        entry.phoneme
+                      }
+                      onChange={(
+                        event,
+                      ) => {
+                        updateWord(
+                          index,
+                          "phoneme",
+                          event.target
+                            .value,
+                        );
+                      }}
+                    />
+                  </div>
+
+                  <div className="formGroup">
+                    <label
+                      htmlFor={`english${index}`}
+                    >
+                      English equivalent
+                    </label>
+
+                    <input
+                      id={`english${index}`}
+                      type="text"
+                      value={
+                        entry.english
+                      }
+                      onChange={(
+                        event,
+                      ) => {
+                        updateWord(
+                          index,
+                          "english",
+                          event.target
+                            .value,
+                        );
+                      }}
+                    />
+                  </div>
                 </div>
-
-                <div className="formGroup">
-                  <label
-                    htmlFor={`english${index}`}
-                  >
-                    English equivalent
-                  </label>
-
-                  <input
-                    id={`english${index}`}
-                    type="text"
-                    value={entry.english}
-                    onChange={(event) => {
-                      updateWord(
-                        index,
-                        "english",
-                        event.target.value,
-                      );
-                    }}
-                  />
-                </div>
-              </div>
-            ))}
+              ),
+            )}
           </div>
 
           <button
@@ -896,7 +1204,9 @@ export default function WordSearchPage() {
         </section>
 
         <section className="builderCard">
-          <h3>Playable Preview</h3>
+          <h3>
+            Playable Preview
+          </h3>
 
           <p>
             Find each phoneme word in the grid.
@@ -904,71 +1214,87 @@ export default function WordSearchPage() {
             final symbol.
           </p>
 
-          <h4>Words to Find</h4>
+          <h4>
+            Words to Find
+          </h4>
 
           <ul className="wordTargetList">
-            {words.map((entry, index) => {
-              const target =
-                normalisePhoneme(
-                  entry.phoneme,
+            {words.map(
+              (
+                entry,
+                index,
+              ) => {
+                const target =
+                  normalisePhoneme(
+                    entry.phoneme,
+                  );
+
+                const found =
+                  foundWords.includes(
+                    target,
+                  );
+
+                return (
+                  <li
+                    className={
+                      found
+                        ? "wordTarget foundWord"
+                        : "wordTarget"
+                    }
+                    title={
+                      entry.english
+                    }
+                    key={`target${index}`}
+                  >
+                    {entry.phoneme}
+                  </li>
                 );
-
-              const found =
-                foundWords.includes(target);
-
-              return (
-                <li
-                  className={
-                    found
-                      ? "wordTarget foundWord"
-                      : "wordTarget"
-                  }
-                  title={entry.english}
-                  key={`target${index}`}
-                >
-                  {entry.phoneme}
-                </li>
-              );
-            })}
+              },
+            )}
           </ul>
 
           <div
             className="wordSearchGrid"
             aria-label="Phoneme word search grid"
           >
-            {grid.map((row, rowIndex) =>
-              row.map(
-                (
-                  symbol,
-                  columnIndex,
-                ) => (
-                  <button
-                    type="button"
-                    className={
-                      isSelected(
-                        rowIndex,
-                        columnIndex,
-                      )
-                        ? "wordSearchCell selectedCell"
-                        : "wordSearchCell"
-                    }
-                    key={`${rowIndex}${columnIndex}`}
-                    onClick={() => {
-                      handleCellClick(
-                        rowIndex,
-                        columnIndex,
-                      );
-                    }}
-                    aria-label={`Row ${
-                      rowIndex + 1
-                    }, column ${
-                      columnIndex + 1
-                    }, symbol ${symbol}`}
-                  >
-                    {symbol}
-                  </button>
+            {grid.map(
+              (
+                row,
+                rowIndex,
+              ) =>
+                row.map(
+                  (
+                    symbol,
+                    columnIndex,
+                  ) => (
+                    <button
+                      type="button"
+                      className={
+                        isSelected(
+                          rowIndex,
+                          columnIndex,
+                        )
+                          ? "wordSearchCell selectedCell"
+                          : "wordSearchCell"
+                      }
+                      key={`${rowIndex}${columnIndex}`}
+                      onClick={() => {
+                        handleCellClick(
+                          rowIndex,
+                          columnIndex,
+                        );
+                      }}
+                      aria-label={`Row ${
+                        rowIndex + 1
+                      }, column ${
+                        columnIndex +
+                        1
+                      }, symbol ${symbol}`}
+                    >
+                      {symbol}
+                    </button>
+                  ),
                 ),
-              ),
             )}
           </div>
 
@@ -982,8 +1308,10 @@ export default function WordSearchPage() {
           <p>
             Found:{" "}
             <strong>
-              {foundWords.length} /{" "}
-              {words.length}
+              {
+                foundWords.length
+              }{" "}
+              / {words.length}
             </strong>
           </p>
 

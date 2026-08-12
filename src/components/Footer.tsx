@@ -1,7 +1,7 @@
 export default function Footer() {
   return (
     <footer>
-      <p>Your Name | Student Number</p>
+      <p>Emmanuel Sholola | 22338567</p>
     </footer>
   );
 }

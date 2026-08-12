@@ -143,10 +143,14 @@ export default function WordlePage() {
       return;
     }
 
-    if (getSymbols(cleanedGuess).length !== answerSymbols.length) {
+    if (
+      getSymbols(cleanedGuess).length !==
+      answerSymbols.length
+    ) {
       setMessage(
         `Your guess needs ${answerSymbols.length} phoneme symbols.`,
       );
+
       return;
     }
 
@@ -155,13 +159,17 @@ export default function WordlePage() {
       phonemeWord,
     );
 
-    const updatedGuesses = [...guesses, result];
+    const updatedGuesses = [
+      ...guesses,
+      result,
+    ];
 
     setGuesses(updatedGuesses);
     setGuess("");
 
     if (
-      cleanedGuess === normalisePhoneme(phonemeWord)
+      cleanedGuess ===
+      normalisePhoneme(phonemeWord)
     ) {
       setSolved(true);
 
@@ -172,7 +180,10 @@ export default function WordlePage() {
       return;
     }
 
-    if (updatedGuesses.length >= maxGuesses) {
+    if (
+      updatedGuesses.length >=
+      maxGuesses
+    ) {
       setMessage(
         `No guesses remaining. The answer was ${phonemeWord}, meaning "${englishWord}".`,
       );
@@ -180,23 +191,34 @@ export default function WordlePage() {
       return;
     }
 
-    setMessage("Not quite. Use the feedback and try again.");
+    setMessage(
+      "Not quite. Use the feedback and try again.",
+    );
   }
 
   function generateHtml() {
-    const safePhoneme = JSON.stringify(phonemeWord);
-    const safeEnglish = JSON.stringify(englishWord);
-    const safeMaxGuesses = JSON.stringify(maxGuesses);
-    const safeHints = JSON.stringify(phonemeHints);
+    const safePhoneme =
+      JSON.stringify(phonemeWord);
+
+    const safeEnglish =
+      JSON.stringify(englishWord);
+
+    const safeMaxGuesses =
+      JSON.stringify(maxGuesses);
+
+    const safeHints =
+      JSON.stringify(phonemeHints);
 
     const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0"
   >
+
   <title>Phoneme Wordle Activity</title>
 
   <style>
@@ -247,19 +269,19 @@ export default function WordlePage() {
     .correct {
       border-color: #39875b;
       background: #39875b;
-      color: white;
+      color: #ffffff;
     }
 
     .present {
       border-color: #b18b2e;
       background: #b18b2e;
-      color: white;
+      color: #ffffff;
     }
 
     .absent {
       border-color: #6b6b70;
       background: #6b6b70;
-      color: white;
+      color: #ffffff;
     }
 
     .hintList {
@@ -316,7 +338,7 @@ export default function WordlePage() {
       border: 1px solid #1b1b1d;
       border-radius: 8px;
       background: #1b1b1d;
-      color: white;
+      color: #ffffff;
       cursor: pointer;
       font-weight: 700;
     }
@@ -458,67 +480,113 @@ export default function WordlePage() {
     const maxGuesses = ${safeMaxGuesses};
     const hints = ${safeHints};
 
-    const form = document.getElementById("gameForm");
-    const input = document.getElementById("guessInput");
-    const submitButton = form.querySelector("button");
-    const message = document.getElementById("message");
-    const remaining = document.getElementById("remaining");
-    const hiddenSlots = document.getElementById("hiddenSlots");
-    const hintList = document.getElementById("hintList");
-    const guessHistory = document.getElementById("guessHistory");
+    const form =
+      document.getElementById("gameForm");
+
+    const input =
+      document.getElementById("guessInput");
+
+    const submitButton =
+      form.querySelector("button");
+
+    const message =
+      document.getElementById("message");
+
+    const remaining =
+      document.getElementById("remaining");
+
+    const hiddenSlots =
+      document.getElementById("hiddenSlots");
+
+    const hintList =
+      document.getElementById("hintList");
+
+    const guessHistory =
+      document.getElementById("guessHistory");
 
     let guessCount = 0;
     let solved = false;
 
     function normalisePhoneme(value) {
-      return value
-        .trim()
-        .replace(/^\\\\/|\\\\/$/g, "")
-        .toLowerCase();
+      let result = value.trim();
+
+      if (result.startsWith("/")) {
+        result = result.slice(1);
+      }
+
+      if (result.endsWith("/")) {
+        result = result.slice(0, -1);
+      }
+
+      return result.toLowerCase();
     }
 
     function getSymbols(value) {
-      return Array.from(normalisePhoneme(value));
+      return Array.from(
+        normalisePhoneme(value)
+      );
     }
 
-    function compareGuess(guessValue, answerValue) {
-      const guessSymbols = getSymbols(guessValue);
-      const answerSymbols = getSymbols(answerValue);
+    function compareGuess(
+      guessValue,
+      answerValue
+    ) {
+      const guessSymbols =
+        getSymbols(guessValue);
+
+      const answerSymbols =
+        getSymbols(answerValue);
+
       const results = [];
-      const remainingAnswer = [...answerSymbols];
 
-      guessSymbols.forEach(function (symbol, index) {
-        if (symbol === answerSymbols[index]) {
-          results[index] = {
-            symbol: symbol,
-            status: "correct"
-          };
+      const remainingAnswer = [
+        ...answerSymbols,
+      ];
 
-          remainingAnswer[index] = "";
+      guessSymbols.forEach(
+        function (symbol, index) {
+          if (
+            symbol ===
+            answerSymbols[index]
+          ) {
+            results[index] = {
+              symbol: symbol,
+              status: "correct",
+            };
+
+            remainingAnswer[index] = "";
+          }
         }
-      });
+      );
 
-      guessSymbols.forEach(function (symbol, index) {
-        if (results[index]) {
-          return;
+      guessSymbols.forEach(
+        function (symbol, index) {
+          if (results[index]) {
+            return;
+          }
+
+          const matchIndex =
+            remainingAnswer.indexOf(
+              symbol
+            );
+
+          if (matchIndex !== -1) {
+            results[index] = {
+              symbol: symbol,
+              status: "present",
+            };
+
+            remainingAnswer[
+              matchIndex
+            ] = "";
+          } else {
+            results[index] = {
+              symbol: symbol,
+              status: "absent",
+            };
+          }
         }
-
-        const matchIndex = remainingAnswer.indexOf(symbol);
-
-        if (matchIndex !== -1) {
-          results[index] = {
-            symbol: symbol,
-            status: "present"
-          };
-
-          remainingAnswer[matchIndex] = "";
-        } else {
-          results[index] = {
-            symbol: symbol,
-            status: "absent"
-          };
-        }
-      });
+      );
 
       return results;
     }
@@ -526,68 +594,109 @@ export default function WordlePage() {
     function createSlots() {
       hiddenSlots.innerHTML = "";
 
-      getSymbols(answer).forEach(function () {
-        const slot = document.createElement("span");
+      getSymbols(answer).forEach(
+        function () {
+          const slot =
+            document.createElement(
+              "span"
+            );
 
-        slot.className = "slot";
-        slot.textContent = "?";
+          slot.className = "slot";
+          slot.textContent = "?";
 
-        hiddenSlots.appendChild(slot);
-      });
+          hiddenSlots.appendChild(
+            slot
+          );
+        }
+      );
     }
 
     function createHints() {
       hintList.innerHTML = "";
 
-      getSymbols(answer).forEach(function (symbol) {
-        const hint = document.createElement("span");
+      getSymbols(answer).forEach(
+        function (symbol) {
+          const hint =
+            document.createElement(
+              "span"
+            );
 
-        hint.className = "hint";
-        hint.tabIndex = 0;
-        hint.textContent = symbol;
-        hint.title = hints[symbol] || "Phoneme sound";
+          hint.className = "hint";
+          hint.tabIndex = 0;
+          hint.textContent =
+            "/" + symbol + "/";
 
-        hintList.appendChild(hint);
-      });
-    }
+          hint.title =
+            hints[symbol] ||
+            "Phoneme sound";
 
-    function updateRemaining() {
-      remaining.textContent = Math.max(
-        maxGuesses - guessCount,
-        0
+          hintList.appendChild(
+            hint
+          );
+        }
       );
     }
 
+    function updateRemaining() {
+      remaining.textContent =
+        Math.max(
+          maxGuesses - guessCount,
+          0
+        );
+    }
+
     function addGuessRow(results) {
-      const row = document.createElement("div");
+      const row =
+        document.createElement(
+          "div"
+        );
 
       row.className = "guessRow";
 
-      results.forEach(function (result) {
-        const slot = document.createElement("span");
+      results.forEach(
+        function (result) {
+          const slot =
+            document.createElement(
+              "span"
+            );
 
-        slot.className =
-          "slot " + result.status;
+          slot.className =
+            "slot " +
+            result.status;
 
-        slot.textContent = result.symbol;
+          slot.textContent =
+            result.symbol;
 
-        row.appendChild(slot);
-      });
+          row.appendChild(slot);
+        }
+      );
 
-      guessHistory.appendChild(row);
+      guessHistory.appendChild(
+        row
+      );
     }
 
     function revealAnswer() {
       hiddenSlots.innerHTML = "";
 
-      getSymbols(answer).forEach(function (symbol) {
-        const slot = document.createElement("span");
+      getSymbols(answer).forEach(
+        function (symbol) {
+          const slot =
+            document.createElement(
+              "span"
+            );
 
-        slot.className = "slot correct";
-        slot.textContent = symbol;
+          slot.className =
+            "slot correct";
 
-        hiddenSlots.appendChild(slot);
-      });
+          slot.textContent =
+            symbol;
+
+          hiddenSlots.appendChild(
+            slot
+          );
+        }
+      );
     }
 
     function finishGame() {
@@ -595,89 +704,107 @@ export default function WordlePage() {
       submitButton.disabled = true;
     }
 
-    form.addEventListener("submit", function (event) {
-      event.preventDefault();
+    form.addEventListener(
+      "submit",
+      function (event) {
+        event.preventDefault();
 
-      if (solved || guessCount >= maxGuesses) {
-        return;
-      }
+        if (
+          solved ||
+          guessCount >= maxGuesses
+        ) {
+          return;
+        }
 
-      const value = input.value.trim();
-      const cleanValue = normalisePhoneme(value);
-      const answerSymbols = getSymbols(answer);
+        const value =
+          input.value.trim();
 
-      if (!cleanValue) {
+        const cleanValue =
+          normalisePhoneme(value);
+
+        const answerSymbols =
+          getSymbols(answer);
+
+        if (!cleanValue) {
+          message.textContent =
+            "Enter a phoneme guess first.";
+
+          return;
+        }
+
+        if (
+          getSymbols(
+            cleanValue
+          ).length !==
+          answerSymbols.length
+        ) {
+          message.textContent =
+            "Your guess needs " +
+            answerSymbols.length +
+            " phoneme symbols.";
+
+          return;
+        }
+
+        guessCount += 1;
+
+        const result =
+          compareGuess(
+            cleanValue,
+            answer
+          );
+
+        addGuessRow(result);
+
+        input.value = "";
+
+        if (
+          cleanValue ===
+          normalisePhoneme(answer)
+        ) {
+          solved = true;
+
+          revealAnswer();
+
+          message.textContent =
+            "Correct. " +
+            answer +
+            ' represents the English word "' +
+            englishWord +
+            '".';
+
+          updateRemaining();
+          finishGame();
+
+          return;
+        }
+
+        if (
+          guessCount >=
+          maxGuesses
+        ) {
+          revealAnswer();
+
+          message.textContent =
+            "No guesses remaining. The answer was " +
+            answer +
+            ', meaning "' +
+            englishWord +
+            '".';
+
+          updateRemaining();
+          finishGame();
+
+          return;
+        }
+
         message.textContent =
-          "Enter a phoneme guess first.";
-
-        return;
-      }
-
-      if (
-        getSymbols(cleanValue).length !==
-        answerSymbols.length
-      ) {
-        message.textContent =
-          "Your guess needs " +
-          answerSymbols.length +
-          " phoneme symbols.";
-
-        return;
-      }
-
-      guessCount += 1;
-
-      const result = compareGuess(
-        cleanValue,
-        answer
-      );
-
-      addGuessRow(result);
-
-      input.value = "";
-
-      if (
-        cleanValue === normalisePhoneme(answer)
-      ) {
-        solved = true;
-
-        revealAnswer();
-
-        message.textContent =
-          "Correct. " +
-          answer +
-          ' represents the English word "' +
-          englishWord +
-          '".';
+          "Not quite. Use the feedback and try again.";
 
         updateRemaining();
-        finishGame();
-
-        return;
+        input.focus();
       }
-
-      if (guessCount >= maxGuesses) {
-        revealAnswer();
-
-        message.textContent =
-          "No guesses remaining. The answer was " +
-          answer +
-          ', meaning "' +
-          englishWord +
-          '".';
-
-        updateRemaining();
-        finishGame();
-
-        return;
-      }
-
-      message.textContent =
-        "Not quite. Use the feedback and try again.";
-
-      updateRemaining();
-      input.focus();
-    });
+    );
 
     createSlots();
     createHints();
@@ -686,22 +813,32 @@ export default function WordlePage() {
 </body>
 </html>`;
 
-    const blob = new Blob([html], {
-      type: "text/html",
-    });
+    const blob = new Blob(
+      [html],
+      {
+        type: "text/html",
+      },
+    );
 
-    const url = URL.createObjectURL(blob);
+    const url =
+      URL.createObjectURL(blob);
 
-    const link = document.createElement("a");
+    const link =
+      document.createElement("a");
 
     link.href = url;
-    link.download = "phonemeWordle.html";
+    link.download =
+      "phonemeWordle.html";
 
-    document.body.appendChild(link);
+    document.body.appendChild(
+      link,
+    );
 
     link.click();
 
-    document.body.removeChild(link);
+    document.body.removeChild(
+      link,
+    );
 
     URL.revokeObjectURL(url);
   }
@@ -709,17 +846,21 @@ export default function WordlePage() {
   return (
     <section>
       <div className="page-heading">
-        <h2>Wordle Builder</h2>
+        <h2>
+          Wordle Builder
+        </h2>
 
         <p>
-          Configure a phoneme based Wordle activity, preview it,
-          then generate a standalone HTML file.
+          Configure a phoneme based Wordle activity,
+          preview it, then generate a standalone HTML file.
         </p>
       </div>
 
       <div className="builderLayout">
         <section className="builderCard">
-          <h3>Activity Settings</h3>
+          <h3>
+            Activity Settings
+          </h3>
 
           <div className="formGroup">
             <label htmlFor="phonemeWord">
@@ -731,7 +872,10 @@ export default function WordlePage() {
               type="text"
               value={phonemeWord}
               onChange={(event) => {
-                setPhonemeWord(event.target.value);
+                setPhonemeWord(
+                  event.target.value,
+                );
+
                 resetGame();
               }}
             />
@@ -751,7 +895,10 @@ export default function WordlePage() {
               type="text"
               value={englishWord}
               onChange={(event) => {
-                setEnglishWord(event.target.value);
+                setEnglishWord(
+                  event.target.value,
+                );
+
                 resetGame();
               }}
             />
@@ -773,14 +920,24 @@ export default function WordlePage() {
               max="10"
               value={maxGuesses}
               onChange={(event) => {
-                const value = Number(event.target.value);
+                const value =
+                  Number(
+                    event.target.value,
+                  );
 
-                const nextValue = Math.max(
-                  1,
-                  Math.min(10, value || 1),
+                const nextValue =
+                  Math.max(
+                    1,
+                    Math.min(
+                      10,
+                      value || 1,
+                    ),
+                  );
+
+                setMaxGuesses(
+                  nextValue,
                 );
 
-                setMaxGuesses(nextValue);
                 resetGame();
               }}
             />
@@ -796,72 +953,98 @@ export default function WordlePage() {
         </section>
 
         <section className="builderCard">
-          <h3>Playable Preview</h3>
+          <h3>
+            Playable Preview
+          </h3>
 
           <p>
-            Guess the hidden phoneme word using the sound
-            hints below.
+            Guess the hidden phoneme word
+            using the sound hints below.
           </p>
 
           <div
             className="hiddenSlots"
             aria-label="Hidden phoneme word"
           >
-            {answerSymbols.map((symbol, index) => (
-              <span
-                className={`phonemeTile ${
-                  solved ? "correctTile" : ""
-                }`}
-                key={`${symbol}${index}`}
-              >
-                {solved ? symbol : "?"}
-              </span>
-            ))}
+            {answerSymbols.map(
+              (symbol, index) => (
+                <span
+                  className={`phonemeTile ${
+                    solved
+                      ? "correctTile"
+                      : ""
+                  }`}
+                  key={`${symbol}${index}`}
+                >
+                  {solved
+                    ? symbol
+                    : "?"}
+                </span>
+              ),
+            )}
           </div>
 
-          <h4>Sound Hints</h4>
+          <h4>
+            Sound Hints
+          </h4>
 
           <div className="soundHints">
-            {answerSymbols.map((symbol, index) => (
-              <span
-                className="soundHint"
-                tabIndex={0}
-                title={
-                  phonemeHints[symbol] ||
-                  "Phoneme sound"
-                }
-                key={`${symbol}Hint${index}`}
-              >
-                /{symbol}/
-              </span>
-            ))}
+            {answerSymbols.map(
+              (symbol, index) => (
+                <span
+                  className="soundHint"
+                  tabIndex={0}
+                  title={
+                    phonemeHints[
+                      symbol
+                    ] ||
+                    "Phoneme sound"
+                  }
+                  key={`${symbol}Hint${index}`}
+                >
+                  /{symbol}/
+                </span>
+              ),
+            )}
           </div>
 
           <p className="mutedText">
-            Hover over or focus a sound to see its English
-            letter equivalence.
+            Hover over or focus a sound
+            to see its English letter
+            equivalence.
           </p>
 
           <div className="feedbackLegend">
             <span>
-              <span className="legendBox correctTile" />
+              <span
+                className="legendBox correctTile"
+              />
+
               Correct position
             </span>
 
             <span>
-              <span className="legendBox presentTile" />
+              <span
+                className="legendBox presentTile"
+              />
+
               Wrong position
             </span>
 
             <span>
-              <span className="legendBox absentTile" />
+              <span
+                className="legendBox absentTile"
+              />
+
               Not in answer
             </span>
           </div>
 
           <p>
             Guesses remaining:{" "}
-            <strong>{guessesRemaining}</strong>
+            <strong>
+              {guessesRemaining}
+            </strong>
           </p>
 
           <form
@@ -879,7 +1062,9 @@ export default function WordlePage() {
                 value={guess}
                 placeholder="Example: /θɪn/"
                 onChange={(event) => {
-                  setGuess(event.target.value);
+                  setGuess(
+                    event.target.value,
+                  );
                 }}
                 disabled={
                   solved ||
@@ -909,29 +1094,45 @@ export default function WordlePage() {
 
           {guesses.length > 0 && (
             <div className="guessHistory">
-              <h4>Previous Guesses</h4>
+              <h4>
+                Previous Guesses
+              </h4>
 
-              {guesses.map((result, rowIndex) => (
-                <div
-                  className="guessRow"
-                  key={`guess${rowIndex}`}
-                >
-                  {result.map((item, columnIndex) => (
-                    <span
-                      className={`phonemeTile ${
-                        item.status === "correct"
-                          ? "correctTile"
-                          : item.status === "present"
-                            ? "presentTile"
-                            : "absentTile"
-                      }`}
-                      key={`${item.symbol}${columnIndex}`}
-                    >
-                      {item.symbol}
-                    </span>
-                  ))}
-                </div>
-              ))}
+              {guesses.map(
+                (
+                  result,
+                  rowIndex,
+                ) => (
+                  <div
+                    className="guessRow"
+                    key={`guess${rowIndex}`}
+                  >
+                    {result.map(
+                      (
+                        item,
+                        columnIndex,
+                      ) => (
+                        <span
+                          className={`phonemeTile ${
+                            item.status ===
+                            "correct"
+                              ? "correctTile"
+                              : item.status ===
+                                  "present"
+                                ? "presentTile"
+                                : "absentTile"
+                          }`}
+                          key={`${item.symbol}${columnIndex}`}
+                        >
+                          {
+                            item.symbol
+                          }
+                        </span>
+                      ),
+                    )}
+                  </div>
+                ),
+              )}
             </div>
           )}
 
