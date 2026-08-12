@@ -1,36 +1,114 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Phoneme Activity Builder
 
-## Getting Started
+A frontend web application for creating phoneme based classroom activities for Speech Pathology learning.
 
-First, run the development server:
+The application allows teachers to configure, preview, and generate playable Wordle and Word Search activities as standalone HTML files.
+
+## Features
+
+Wordle Builder: Configure a phoneme answer, English equivalent, and number of guesses. Includes sound hints, Wordle style feedback, and a playable preview.
+
+Word Search Builder: Configure five phoneme words and their English equivalents. Includes an interactive word search preview with selection feedback.
+
+HTML Generation: Both activities can be downloaded as standalone HTML files that run directly in a normal web browser.
+
+Responsive Interface: The layout adapts for desktop, tablet, and mobile screen sizes.
+
+Navigation: Includes desktop navigation and a compact hamburger menu for smaller displays.
+
+Themes: Light and dark themes with the selected preference stored using cookies.
+
+Accessibility: Includes keyboard navigation, focus states, semantic form labels, live feedback, and phoneme hints accessible through mouse hover and keyboard focus.
+
+## Pages
+
+Home: Introduces the application and provides access to both activity builders.
+
+Wordle: Configures, previews, and generates the phoneme Wordle activity.
+
+Word Search: Configures, previews, and generates the phoneme Word Search activity.
+
+About: Provides the project overview, student details, and instructional video.
+
+Settings: Provides persistent light and dark theme controls.
+
+## Technology
+
+Next.js
+
+React
+
+TypeScript
+
+CSS
+
+HTML
+
+JavaScript
+
+## Project Structure
+
+```text
+src
+  app
+    about
+      page.tsx
+    settings
+      page.tsx
+    wordle
+      page.tsx
+    word-search
+      page.tsx
+    globals.css
+    layout.tsx
+    page.tsx
+
+  components
+    Footer.tsx
+    Header.tsx
+    Navbar.tsx
+```
+
+## Running the Project
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open the application at:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Create a production build:
 
-## Learn More
+```bash
+npm run build
+```
 
-To learn more about Next.js, take a look at the following resources:
+Run code quality checks:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run lint
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Current Scope
 
-## Deploy on Vercel
+This version focuses on frontend design, usability, accessibility, responsive behaviour, and standalone activity generation.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Database integration, authentication, dynamic word management, and additional full stack functionality are intended for later stages of the project.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Author
+
+Emmanuel Sholola
+
+Student ID: 22338567
