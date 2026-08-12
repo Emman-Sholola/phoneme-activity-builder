@@ -6,7 +6,7 @@
   --background: #f7f7f8;
   --surface: #ffffff;
   --text: #1b1b1d;
-  --muted-text: #5f6268;
+  --mutedText: #5f6268;
   --border: #d8d8dc;
 }
 
@@ -14,7 +14,7 @@ html[data-theme="dark"] {
   --background: #0f0f10;
   --surface: #171718;
   --text: #f5f5f5;
-  --muted-text: #c7c7c7;
+  --mutedText: #c7c7c7;
   --border: #333333;
 }
 
@@ -72,10 +72,10 @@ header h1 {
 
 .menu-toggle {
   display: none;
-  font-size: 1.5rem;
-  background: none;
   border: none;
+  background: none;
   color: inherit;
+  font-size: 1.5rem;
   cursor: pointer;
 }
 
@@ -83,9 +83,9 @@ header h1 {
 
 main {
   width: min(1100px, calc(100% - 2rem));
+  min-height: calc(100vh - 210px);
   margin: 0 auto;
   padding: 2rem 0 4rem;
-  min-height: calc(100vh - 210px);
 }
 
 /* Footer */
@@ -109,11 +109,11 @@ footer {
 
 .page-heading p {
   max-width: 700px;
+  color: var(--mutedText);
   line-height: 1.6;
-  color: var(--muted-text);
 }
 
-/* Home Activity Cards */
+/* Home */
 
 .activity-grid {
   display: grid;
@@ -134,8 +134,8 @@ footer {
 }
 
 .activity-card:hover {
-  transform: translateY(-3px);
   border-color: var(--text);
+  transform: translateY(-3px);
 }
 
 .activity-card h3 {
@@ -144,8 +144,8 @@ footer {
 }
 
 .activity-card p {
+  color: var(--mutedText);
   line-height: 1.6;
-  color: var(--muted-text);
 }
 
 .activity-card span {
@@ -164,9 +164,9 @@ footer {
 .settings-card {
   max-width: 550px;
   padding: 1.5rem;
-  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 10px;
+  background: var(--surface);
 }
 
 .settings-card h3 {
@@ -174,7 +174,7 @@ footer {
 }
 
 .settings-card p {
-  color: var(--muted-text);
+  color: var(--mutedText);
 }
 
 .theme-options {
@@ -189,8 +189,8 @@ footer {
   border-radius: 8px;
   background: var(--background);
   color: var(--text);
-  cursor: pointer;
   font-weight: 600;
+  cursor: pointer;
 }
 
 .theme-options button.selected {
@@ -203,7 +203,213 @@ footer {
   outline-offset: 3px;
 }
 
+/* Activity Builder */
+
+.builderLayout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.builderCard {
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.builderCard h3 {
+  margin-top: 0;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.formGroup label,
+.guessForm label {
+  font-weight: 600;
+}
+
+.formGroup small {
+  color: var(--mutedText);
+}
+
+.formGroup input,
+.guessControls input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--background);
+  color: var(--text);
+  font: inherit;
+}
+
+.formGroup input:focus,
+.guessControls input:focus {
+  outline: 3px solid var(--text);
+  outline-offset: 2px;
+}
+
+.primaryButton,
+.secondaryButton {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primaryButton {
+  border: 1px solid var(--text);
+  background: var(--text);
+  color: var(--background);
+}
+
+.secondaryButton {
+  margin-top: 1rem;
+  border: 1px solid var(--border);
+  background: var(--background);
+  color: var(--text);
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.primaryButton:focus-visible,
+.secondaryButton:focus-visible {
+  outline: 3px solid var(--text);
+  outline-offset: 3px;
+}
+
+/* Phoneme Wordle */
+
+.hiddenSlots,
+.guessRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.phonemeTile {
+  display: flex;
+  width: 3rem;
+  height: 3rem;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: var(--background);
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.correctTile {
+  border-color: #39875b;
+  background: #39875b;
+  color: #ffffff;
+}
+
+.presentTile {
+  border-color: #b18b2e;
+  background: #b18b2e;
+  color: #ffffff;
+}
+
+.absentTile {
+  border-color: #6b6b70;
+  background: #6b6b70;
+  color: #ffffff;
+}
+
+.soundHints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+}
+
+.soundHint {
+  display: inline-block;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--background);
+  font-weight: 700;
+  cursor: help;
+}
+
+.soundHint:focus-visible {
+  outline: 3px solid var(--text);
+  outline-offset: 3px;
+}
+
+.mutedText {
+  color: var(--mutedText);
+  line-height: 1.5;
+}
+
+.feedbackLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 1rem 0;
+  color: var(--mutedText);
+  font-size: 0.9rem;
+}
+
+.feedbackLegend > span {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.legendBox {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 3px;
+}
+
+.guessForm {
+  margin-top: 1.25rem;
+}
+
+.guessControls {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.gameMessage {
+  min-height: 1.5rem;
+  margin-top: 1rem;
+  font-weight: 700;
+}
+
+.guessHistory {
+  margin-top: 1.25rem;
+}
+
+.guessHistory h4 {
+  margin-bottom: 0.5rem;
+}
+
 /* Responsive Layout */
+
+@media (max-width: 800px) {
+  .builderLayout {
+    grid-template-columns: 1fr;
+  }
+}
 
 @media (max-width: 700px) {
   header {
@@ -215,8 +421,8 @@ footer {
   }
 
   .navbar {
-    align-items: flex-start;
     flex-direction: column;
+    align-items: flex-start;
     padding: 0.75rem 1rem;
   }
 
@@ -228,8 +434,8 @@ footer {
     display: none;
     flex-direction: column;
     width: 100%;
-    padding-top: 1rem;
     gap: 1rem;
+    padding-top: 1rem;
   }
 
   .nav-links.open {
@@ -255,5 +461,16 @@ footer {
 
   .theme-options {
     flex-direction: column;
+  }
+}
+
+@media (max-width: 500px) {
+  .guessControls {
+    flex-direction: column;
+  }
+
+  .phonemeTile {
+    width: 2.6rem;
+    height: 2.6rem;
   }
 }
