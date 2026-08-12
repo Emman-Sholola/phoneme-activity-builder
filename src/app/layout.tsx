@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import "./globals.css";
 
 import Header from "@/components/Header";
@@ -7,16 +8,19 @@ import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "Phoneme Activity Builder",
-  description: "A phoneme-based classroom activity builder",
+  description: "A phoneme based classroom activity builder",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const theme = cookieStore.get("theme")?.value || "dark";
+
   return (
-    <html lang="en">
+    <html lang="en" data-theme={theme}>
       <body>
         <Header />
         <Navbar />
