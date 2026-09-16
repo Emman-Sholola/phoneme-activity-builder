@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -12,4 +6,82 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+enum ActivityType {
+  WORDLE
+  WORD_SEARCH
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+model Activity {
+  id          String       @id @default(cuid())
+  name        String
+  description String?
+  type        ActivityType
+  difficulty  Difficulty   @default(MEDIUM)
+
+  maxGuesses Int?
+  gridSize   Int?
+  settings   Json?
+
+  wordListId String?
+  wordList   WordList? @relation(fields: [wordListId], references: [id], onDelete: SetNull)
+
+  words ActivityWord[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([type])
+  @@index([wordListId])
+}
+
+model WordList {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+
+  words      WordEntry[]
+  activities Activity[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model WordEntry {
+  id      String  @id @default(cuid())
+  phoneme String
+  english String
+  hint    String?
+
+  wordListId String
+  wordList   WordList @relation(fields: [wordListId], references: [id], onDelete: Cascade)
+
+  activities ActivityWord[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([wordListId, phoneme])
+  @@index([wordListId])
+}
+
+model ActivityWord {
+  activityId  String
+  wordEntryId String
+
+  position Int?
+  isAnswer Boolean @default(false)
+
+  activity  Activity  @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  wordEntry WordEntry @relation(fields: [wordEntryId], references: [id], onDelete: Cascade)
+
+  @@id([activityId, wordEntryId])
+  @@index([activityId, position])
 }
