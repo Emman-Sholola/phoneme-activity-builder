@@ -240,6 +240,11 @@ POSTGRES_DB=phoneme_builder
 
 The real `.env` file is excluded from Git and should not be committed.
 
+The PostgreSQL username, password, and database values shown above are local development defaults only. They are included to make the project easy to run in a local Docker or development environment.
+
+Production deployments should replace these values with strong environment supplied credentials and should never commit real secrets or production connection strings to source control.
+
+The real `.env` file is excluded from Git and should not be committed.
 ## Running Locally:
 
 Install dependencies:

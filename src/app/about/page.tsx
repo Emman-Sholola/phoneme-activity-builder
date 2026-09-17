@@ -3,10 +3,9 @@ export default function AboutPage() {
     <section>
       <div className="page-heading">
         <h2>About</h2>
-
         <p>
           Learn more about the Phoneme Activity Builder and the purpose of this
-          frontend application.
+          full stack application.
         </p>
       </div>
 
@@ -20,9 +19,15 @@ export default function AboutPage() {
           </p>
 
           <p className="mutedText">
-            Teachers can configure Wordle and Word Search activities, preview
-            how each activity behaves, and generate a standalone HTML file that
-            can be opened directly in a web browser.
+            Teachers can manage stored phoneme data, configure Wordle and Word
+            Search activities, preview how each activity behaves, and generate
+            standalone HTML files that can be opened directly in a web browser.
+          </p>
+
+          <p className="mutedText">
+            The application uses a PostgreSQL database with Prisma ORM, backend
+            CRUD APIs, persistent activity configurations, theme support, and
+            Docker for reproducible deployment.
           </p>
         </section>
 
@@ -35,15 +40,6 @@ export default function AboutPage() {
 
           <p>
             <strong>Student ID:</strong> 22338567
-          </p>
-        </section>
-
-        <section className="builderCard">
-          <h3>Instructional Video</h3>
-
-          <p className="mutedText">
-            A short walkthrough demonstrating the application and its key
-            frontend features will be provided here.
           </p>
         </section>
       </div>
