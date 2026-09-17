@@ -33,8 +33,17 @@ export function downloadWordleHtml({
       phonemeHints,
     );
 
+  const currentTheme =
+    document.documentElement
+      .dataset.theme === "dark"
+      ? "dark"
+      : "light";
+
   const html = `<!DOCTYPE html>
-<html lang="en">
+<html
+  lang="en"
+  data-theme="${currentTheme}"
+>
 <head>
   <meta charset="UTF-8">
 
@@ -43,9 +52,41 @@ export function downloadWordleHtml({
     content="width=device-width, initial-scale=1.0"
   >
 
-  <title>Phoneme Wordle Activity</title>
+  <title>
+    Phoneme Wordle Activity
+  </title>
 
   <style>
+    :root {
+      color-scheme: light;
+
+      --background: #f7f7f8;
+      --surface: #ffffff;
+      --text: #1b1b1d;
+      --muted: #5f6268;
+      --border: #c8c8cc;
+      --input-background: #ffffff;
+      --hint-background: #eeeeef;
+      --button-background: #1b1b1d;
+      --button-text: #ffffff;
+      --focus: #1b1b1d;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+
+      --background: #0f0f10;
+      --surface: #171718;
+      --text: #f5f5f5;
+      --muted: #c7c7c7;
+      --border: #444448;
+      --input-background: #0f0f10;
+      --hint-background: #242426;
+      --button-background: #f5f5f5;
+      --button-text: #0f0f10;
+      --focus: #f5f5f5;
+    }
+
     * {
       box-sizing: border-box;
     }
@@ -53,168 +94,306 @@ export function downloadWordleHtml({
     body {
       margin: 0;
       padding: 2rem;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #f7f7f8;
-      color: #1b1b1d;
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+      background:
+        var(--background);
+      color:
+        var(--text);
     }
 
     main {
-      width: min(700px, 100%);
-      margin: 0 auto;
+      width:
+        min(
+          700px,
+          100%
+        );
+      margin:
+        0 auto;
     }
 
     .card {
-      padding: 2rem;
-      border: 1px solid #d8d8dc;
-      border-radius: 12px;
-      background: #ffffff;
+      padding:
+        2rem;
+      border:
+        1px solid
+        var(--border);
+      border-radius:
+        12px;
+      background:
+        var(--surface);
+    }
+
+    h1,
+    h2 {
+      color:
+        var(--text);
+    }
+
+    p {
+      line-height:
+        1.5;
     }
 
     .hiddenSlots,
     .guessRow {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin: 1rem 0;
+      display:
+        flex;
+      flex-wrap:
+        wrap;
+      gap:
+        0.5rem;
+      margin:
+        1rem 0;
     }
 
     .slot {
-      display: flex;
-      width: 3rem;
-      height: 3rem;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid #c8c8cc;
-      border-radius: 8px;
-      font-size: 1.3rem;
-      font-weight: 700;
+      display:
+        flex;
+      width:
+        3rem;
+      height:
+        3rem;
+      align-items:
+        center;
+      justify-content:
+        center;
+      border:
+        2px solid
+        var(--border);
+      border-radius:
+        8px;
+      background:
+        var(--input-background);
+      color:
+        var(--text);
+      font-size:
+        1.3rem;
+      font-weight:
+        700;
     }
 
     .correct {
-      border-color: #39875b;
-      background: #39875b;
-      color: #ffffff;
+      border-color:
+        #39875b;
+      background:
+        #39875b;
+      color:
+        #ffffff;
     }
 
     .present {
-      border-color: #b18b2e;
-      background: #b18b2e;
-      color: #ffffff;
+      border-color:
+        #9b7718;
+      background:
+        #9b7718;
+      color:
+        #ffffff;
     }
 
     .absent {
-      border-color: #6b6b70;
-      background: #6b6b70;
-      color: #ffffff;
+      border-color:
+        #66666b;
+      background:
+        #66666b;
+      color:
+        #ffffff;
     }
 
     .hintList {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin: 1rem 0 1.5rem;
+      display:
+        flex;
+      flex-wrap:
+        wrap;
+      gap:
+        0.5rem;
+      margin:
+        1rem 0 1.5rem;
     }
 
     .hint {
-      padding: 0.6rem 0.8rem;
-      border: 1px solid #c8c8cc;
-      border-radius: 8px;
-      background: #eeeeef;
-      color: #1b1b1d;
-      font-weight: 600;
-      cursor: help;
+      padding:
+        0.6rem 0.8rem;
+      border:
+        1px solid
+        var(--border);
+      border-radius:
+        8px;
+      background:
+        var(--hint-background);
+      color:
+        var(--text);
+      font-weight:
+        600;
+      cursor:
+        help;
     }
 
-    .hint:focus {
-      outline: 3px solid #1b1b1d;
-      outline-offset: 2px;
+    .hint:focus-visible {
+      outline:
+        3px solid
+        var(--focus);
+      outline-offset:
+        2px;
     }
 
     form {
-      margin-top: 1.5rem;
+      margin-top:
+        1.5rem;
     }
 
     label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 700;
+      display:
+        block;
+      margin-bottom:
+        0.5rem;
+      font-weight:
+        700;
     }
 
     .controls {
-      display: flex;
-      gap: 0.75rem;
+      display:
+        flex;
+      gap:
+        0.75rem;
     }
 
     input,
     button {
-      font: inherit;
+      font:
+        inherit;
     }
 
     input {
-      flex: 1;
-      padding: 0.8rem;
-      border: 1px solid #bdbdc2;
-      border-radius: 8px;
+      flex:
+        1;
+      padding:
+        0.8rem;
+      border:
+        1px solid
+        var(--border);
+      border-radius:
+        8px;
+      background:
+        var(--input-background);
+      color:
+        var(--text);
+    }
+
+    input::placeholder {
+      color:
+        var(--muted);
+    }
+
+    input:focus-visible {
+      outline:
+        3px solid
+        var(--focus);
+      outline-offset:
+        2px;
     }
 
     button {
-      padding: 0.8rem 1rem;
-      border: 1px solid #1b1b1d;
-      border-radius: 8px;
-      background: #1b1b1d;
-      color: #ffffff;
-      cursor: pointer;
-      font-weight: 700;
+      padding:
+        0.8rem 1rem;
+      border:
+        1px solid
+        var(--text);
+      border-radius:
+        8px;
+      background:
+        var(--button-background);
+      color:
+        var(--button-text);
+      cursor:
+        pointer;
+      font-weight:
+        700;
+    }
+
+    button:focus-visible {
+      outline:
+        3px solid
+        var(--focus);
+      outline-offset:
+        3px;
     }
 
     button:disabled,
     input:disabled {
-      opacity: 0.55;
-      cursor: not-allowed;
+      opacity:
+        0.55;
+      cursor:
+        not-allowed;
     }
 
     .message {
-      min-height: 1.5rem;
-      margin-top: 1rem;
-      font-weight: 700;
+      min-height:
+        1.5rem;
+      margin-top:
+        1rem;
+      font-weight:
+        700;
     }
 
     .legend {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-top: 1rem;
-      font-size: 0.9rem;
+      display:
+        flex;
+      flex-wrap:
+        wrap;
+      gap:
+        1rem;
+      margin-top:
+        1rem;
+      color:
+        var(--muted);
+      font-size:
+        0.9rem;
     }
 
     .legendItem {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
+      display:
+        flex;
+      align-items:
+        center;
+      gap:
+        0.4rem;
     }
 
     .legendColour {
-      width: 1rem;
-      height: 1rem;
-      border-radius: 3px;
+      width:
+        1rem;
+      height:
+        1rem;
+      border-radius:
+        3px;
     }
 
-    @media (max-width: 600px) {
+    @media (
+      max-width: 600px
+    ) {
       body {
-        padding: 1rem;
+        padding:
+          1rem;
       }
 
       .card {
-        padding: 1.25rem;
+        padding:
+          1.25rem;
       }
 
       .controls {
-        flex-direction: column;
+        flex-direction:
+          column;
       }
 
       .slot {
-        width: 2.7rem;
-        height: 2.7rem;
+        width:
+          2.7rem;
+        height:
+          2.7rem;
       }
     }
   </style>
@@ -223,10 +402,13 @@ export function downloadWordleHtml({
 <body>
   <main>
     <section class="card">
-      <h1>Phoneme Wordle</h1>
+      <h1>
+        Phoneme Wordle
+      </h1>
 
       <p>
-        Guess the hidden phoneme word using the sound hints below.
+        Guess the hidden phoneme word
+        using the sound hints below.
       </p>
 
       <div
@@ -235,7 +417,9 @@ export function downloadWordleHtml({
         aria-label="Hidden phoneme word"
       ></div>
 
-      <h2>Sound Hints</h2>
+      <h2>
+        Sound Hints
+      </h2>
 
       <div
         id="hintList"
@@ -243,29 +427,41 @@ export function downloadWordleHtml({
       ></div>
 
       <p>
-        Hover over or focus a hint to see its sound equivalence.
+        Hover over or focus a hint
+        to see its sound equivalence.
       </p>
 
       <div class="legend">
         <span class="legendItem">
-          <span class="legendColour correct"></span>
+          <span
+            class="legendColour correct"
+          ></span>
+
           Correct position
         </span>
 
         <span class="legendItem">
-          <span class="legendColour present"></span>
+          <span
+            class="legendColour present"
+          ></span>
+
           Wrong position
         </span>
 
         <span class="legendItem">
-          <span class="legendColour absent"></span>
+          <span
+            class="legendColour absent"
+          ></span>
+
           Not in answer
         </span>
       </div>
 
       <p>
         Guesses remaining:
-        <strong id="remaining"></strong>
+        <strong
+          id="remaining"
+        ></strong>
       </p>
 
       <form id="gameForm">
@@ -282,7 +478,9 @@ export function downloadWordleHtml({
             placeholder="Example: /θɪn/"
           >
 
-          <button type="submit">
+          <button
+            type="submit"
+          >
             Submit Guess
           </button>
         </div>
@@ -294,60 +492,113 @@ export function downloadWordleHtml({
         aria-live="polite"
       ></div>
 
-      <div id="guessHistory"></div>
+      <div
+        id="guessHistory"
+        aria-label="Previous guesses"
+      ></div>
     </section>
   </main>
 
   <script>
-    const answer = ${safePhoneme};
-    const englishWord = ${safeEnglish};
-    const maxGuesses = ${safeMaxGuesses};
-    const hints = ${safeHints};
+    const answer =
+      ${safePhoneme};
+
+    const englishWord =
+      ${safeEnglish};
+
+    const maxGuesses =
+      ${safeMaxGuesses};
+
+    const hints =
+      ${safeHints};
 
     const form =
-      document.getElementById("gameForm");
+      document.getElementById(
+        "gameForm"
+      );
 
     const input =
-      document.getElementById("guessInput");
+      document.getElementById(
+        "guessInput"
+      );
 
     const submitButton =
-      form.querySelector("button");
+      form.querySelector(
+        "button"
+      );
 
     const message =
-      document.getElementById("message");
+      document.getElementById(
+        "message"
+      );
 
     const remaining =
-      document.getElementById("remaining");
+      document.getElementById(
+        "remaining"
+      );
 
     const hiddenSlots =
-      document.getElementById("hiddenSlots");
+      document.getElementById(
+        "hiddenSlots"
+      );
 
     const hintList =
-      document.getElementById("hintList");
+      document.getElementById(
+        "hintList"
+      );
 
     const guessHistory =
-      document.getElementById("guessHistory");
+      document.getElementById(
+        "guessHistory"
+      );
 
-    let guessCount = 0;
-    let solved = false;
+    let guessCount =
+      0;
 
-    function normalisePhoneme(value) {
-      let result = value.trim();
+    let solved =
+      false;
 
-      if (result.startsWith("/")) {
-        result = result.slice(1);
+    function normalisePhoneme(
+      value
+    ) {
+      let result =
+        value
+          .trim();
+
+      if (
+        result.startsWith(
+          "/"
+        )
+      ) {
+        result =
+          result.slice(
+            1
+          );
       }
 
-      if (result.endsWith("/")) {
-        result = result.slice(0, -1);
+      if (
+        result.endsWith(
+          "/"
+        )
+      ) {
+        result =
+          result.slice(
+            0,
+            -1
+          );
       }
 
-      return result.toLowerCase();
+      return result
+        .toLowerCase();
     }
 
-    function getSymbols(value) {
+    function getSymbols(
+      value
+    ) {
       return Array.from(
-        normalisePhoneme(value)
+        normalisePhoneme(
+          value
+        )
       );
     }
 
@@ -356,57 +607,92 @@ export function downloadWordleHtml({
       answerValue
     ) {
       const guessSymbols =
-        getSymbols(guessValue);
+        getSymbols(
+          guessValue
+        );
 
       const answerSymbols =
-        getSymbols(answerValue);
+        getSymbols(
+          answerValue
+        );
 
-      const results = [];
+      const results =
+        [];
 
       const remainingAnswer = [
         ...answerSymbols
       ];
 
       guessSymbols.forEach(
-        function (symbol, index) {
+        function (
+          symbol,
+          index
+        ) {
           if (
             symbol ===
-            answerSymbols[index]
+            answerSymbols[
+              index
+            ]
           ) {
-            results[index] = {
-              symbol: symbol,
-              status: "correct"
+            results[
+              index
+            ] = {
+              symbol:
+                symbol,
+              status:
+                "correct"
             };
 
-            remainingAnswer[index] = "";
+            remainingAnswer[
+              index
+            ] = "";
           }
         }
       );
 
       guessSymbols.forEach(
-        function (symbol, index) {
-          if (results[index]) {
+        function (
+          symbol,
+          index
+        ) {
+          if (
+            results[
+              index
+            ]
+          ) {
             return;
           }
 
           const matchIndex =
-            remainingAnswer.indexOf(
-              symbol
-            );
+            remainingAnswer
+              .indexOf(
+                symbol
+              );
 
-          if (matchIndex !== -1) {
-            results[index] = {
-              symbol: symbol,
-              status: "present"
+          if (
+            matchIndex !==
+            -1
+          ) {
+            results[
+              index
+            ] = {
+              symbol:
+                symbol,
+              status:
+                "present"
             };
 
             remainingAnswer[
               matchIndex
             ] = "";
           } else {
-            results[index] = {
-              symbol: symbol,
-              status: "absent"
+            results[
+              index
+            ] = {
+              symbol:
+                symbol,
+              status:
+                "absent"
             };
           }
         }
@@ -416,47 +702,83 @@ export function downloadWordleHtml({
     }
 
     function createSlots() {
-      hiddenSlots.innerHTML = "";
+      hiddenSlots.innerHTML =
+        "";
 
-      getSymbols(answer).forEach(
+      getSymbols(
+        answer
+      ).forEach(
         function () {
           const slot =
-            document.createElement(
-              "span"
+            document
+              .createElement(
+                "span"
+              );
+
+          slot.className =
+            "slot";
+
+          slot.textContent =
+            "?";
+
+          hiddenSlots
+            .appendChild(
+              slot
             );
-
-          slot.className = "slot";
-          slot.textContent = "?";
-
-          hiddenSlots.appendChild(
-            slot
-          );
         }
       );
     }
 
     function createHints() {
-      hintList.innerHTML = "";
+      hintList.innerHTML =
+        "";
 
-      getSymbols(answer).forEach(
-        function (symbol) {
+      getSymbols(
+        answer
+      ).forEach(
+        function (
+          symbol
+        ) {
           const hint =
-            document.createElement(
-              "span"
-            );
+            document
+              .createElement(
+                "span"
+              );
 
-          hint.className = "hint";
-          hint.tabIndex = 0;
+          hint.className =
+            "hint";
+
+          hint.tabIndex =
+            0;
+
           hint.textContent =
-            "/" + symbol + "/";
+            "/" +
+            symbol +
+            "/";
 
           hint.title =
-            hints[symbol] ||
+            hints[
+              symbol
+            ] ||
             "Phoneme sound";
 
-          hintList.appendChild(
-            hint
+          hint.setAttribute(
+            "aria-label",
+            "/" +
+              symbol +
+              "/: " +
+              (
+                hints[
+                  symbol
+                ] ||
+                "Phoneme sound"
+              )
           );
+
+          hintList
+            .appendChild(
+              hint
+            );
         }
       );
     }
@@ -474,19 +796,23 @@ export function downloadWordleHtml({
       results
     ) {
       const row =
-        document.createElement(
-          "div"
-        );
+        document
+          .createElement(
+            "div"
+          );
 
       row.className =
         "guessRow";
 
       results.forEach(
-        function (result) {
+        function (
+          result
+        ) {
           const slot =
-            document.createElement(
-              "span"
-            );
+            document
+              .createElement(
+                "span"
+              );
 
           slot.className =
             "slot " +
@@ -495,27 +821,40 @@ export function downloadWordleHtml({
           slot.textContent =
             result.symbol;
 
+          slot.setAttribute(
+            "aria-label",
+            result.symbol +
+              ", " +
+              result.status
+          );
+
           row.appendChild(
             slot
           );
         }
       );
 
-      guessHistory.appendChild(
-        row
-      );
+      guessHistory
+        .appendChild(
+          row
+        );
     }
 
     function revealAnswer() {
       hiddenSlots.innerHTML =
         "";
 
-      getSymbols(answer).forEach(
-        function (symbol) {
+      getSymbols(
+        answer
+      ).forEach(
+        function (
+          symbol
+        ) {
           const slot =
-            document.createElement(
-              "span"
-            );
+            document
+              .createElement(
+                "span"
+              );
 
           slot.className =
             "slot correct";
@@ -523,23 +862,29 @@ export function downloadWordleHtml({
           slot.textContent =
             symbol;
 
-          hiddenSlots.appendChild(
-            slot
-          );
+          hiddenSlots
+            .appendChild(
+              slot
+            );
         }
       );
     }
 
     function finishGame() {
-      input.disabled = true;
+      input.disabled =
+        true;
+
       submitButton.disabled =
         true;
     }
 
     form.addEventListener(
       "submit",
-      function (event) {
-        event.preventDefault();
+      function (
+        event
+      ) {
+        event
+          .preventDefault();
 
         if (
           solved ||
@@ -555,9 +900,13 @@ export function downloadWordleHtml({
           );
 
         const answerSymbols =
-          getSymbols(answer);
+          getSymbols(
+            answer
+          );
 
-        if (!cleanValue) {
+        if (
+          !cleanValue
+        ) {
           message.textContent =
             "Enter a phoneme guess first.";
 
@@ -578,7 +927,8 @@ export function downloadWordleHtml({
           return;
         }
 
-        guessCount += 1;
+        guessCount +=
+          1;
 
         const result =
           compareGuess(
@@ -586,9 +936,12 @@ export function downloadWordleHtml({
             answer
           );
 
-        addGuessRow(result);
+        addGuessRow(
+          result
+        );
 
-        input.value = "";
+        input.value =
+          "";
 
         if (
           cleanValue ===
@@ -596,7 +949,8 @@ export function downloadWordleHtml({
             answer
           )
         ) {
-          solved = true;
+          solved =
+            true;
 
           revealAnswer();
 
@@ -608,6 +962,7 @@ export function downloadWordleHtml({
             '".';
 
           updateRemaining();
+
           finishGame();
 
           return;
@@ -627,6 +982,7 @@ export function downloadWordleHtml({
             '".';
 
           updateRemaining();
+
           finishGame();
 
           return;
@@ -636,6 +992,7 @@ export function downloadWordleHtml({
           "Not quite. Use the feedback and try again.";
 
         updateRemaining();
+
         input.focus();
       }
     );
@@ -647,12 +1004,14 @@ export function downloadWordleHtml({
 </body>
 </html>`;
 
-  const blob = new Blob(
-    [html],
-    {
-      type: "text/html",
-    },
-  );
+  const blob =
+    new Blob(
+      [html],
+      {
+        type:
+          "text/html",
+      },
+    );
 
   const url =
     URL.createObjectURL(
@@ -664,7 +1023,8 @@ export function downloadWordleHtml({
       "a",
     );
 
-  link.href = url;
+  link.href =
+    url;
 
   link.download =
     "phonemeWordle.html";

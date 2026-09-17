@@ -204,6 +204,21 @@ html[data-theme="dark"] .darkThemeButton {
   outline-offset: 3px;
 }
 
+.theme-status {
+  margin-top: 1.25rem;
+}
+
+.theme-descriptions {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.theme-descriptions p {
+  margin: 0.5rem 0;
+  color: var(--mutedText);
+  line-height: 1.5;
+}
 /* Activity Builder */
 
 .builderLayout {

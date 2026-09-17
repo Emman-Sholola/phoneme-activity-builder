@@ -1,6 +1,7 @@
-import type {
-  WordSearchWord,
-} from "@/lib/word-search/game";
+type WordSearchWord = {
+  phoneme: string;
+  english: string;
+};
 
 type WordSearchGenerationOptions = {
   words: WordSearchWord[];
@@ -20,12 +21,19 @@ export function downloadWordSearchHtml({
     JSON.stringify(grid);
 
   const safeGridSize =
-    JSON.stringify(
-      gridSize,
-    );
+    JSON.stringify(gridSize);
+
+  const currentTheme =
+    document.documentElement
+      .dataset.theme === "dark"
+      ? "dark"
+      : "light";
 
   const html = `<!DOCTYPE html>
-<html lang="en">
+<html
+  lang="en"
+  data-theme="${currentTheme}"
+>
 <head>
   <meta charset="UTF-8">
 
@@ -34,9 +42,39 @@ export function downloadWordSearchHtml({
     content="width=device-width, initial-scale=1.0"
   >
 
-  <title>Phoneme Word Search</title>
+  <title>
+    Phoneme Word Search Activity
+  </title>
 
   <style>
+    :root {
+      color-scheme: light;
+
+      --background: #f7f7f8;
+      --surface: #ffffff;
+      --text: #1b1b1d;
+      --muted: #5f6268;
+      --border: #bdbdc2;
+      --cell-background: #ffffff;
+      --hover-background: #eeeeef;
+      --word-background: #f7f7f8;
+      --focus: #1b1b1d;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+
+      --background: #0f0f10;
+      --surface: #171718;
+      --text: #f5f5f5;
+      --muted: #c7c7c7;
+      --border: #444448;
+      --cell-background: #0f0f10;
+      --hover-background: #242426;
+      --word-background: #242426;
+      --focus: #f5f5f5;
+    }
+
     * {
       box-sizing: border-box;
     }
@@ -44,109 +82,220 @@ export function downloadWordSearchHtml({
     body {
       margin: 0;
       padding: 2rem;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #f7f7f8;
-      color: #1b1b1d;
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+      background:
+        var(--background);
+      color:
+        var(--text);
     }
 
     main {
-      width: min(850px, 100%);
-      margin: 0 auto;
+      width:
+        min(
+          800px,
+          100%
+        );
+      margin:
+        0 auto;
     }
 
     .card {
-      padding: 2rem;
-      border: 1px solid #d8d8dc;
-      border-radius: 12px;
-      background: #ffffff;
+      padding:
+        2rem;
+      border:
+        1px solid
+        var(--border);
+      border-radius:
+        12px;
+      background:
+        var(--surface);
+    }
+
+    h1,
+    h2 {
+      color:
+        var(--text);
+    }
+
+    p {
+      line-height:
+        1.5;
+    }
+
+    .instructions {
+      color:
+        var(--muted);
     }
 
     .grid {
-      display: grid;
+      display:
+        grid;
+
       grid-template-columns:
-        repeat(${safeGridSize}, 1fr);
-      gap: 0.25rem;
-      margin: 1.5rem 0;
+        repeat(
+          ${safeGridSize},
+          1fr
+        );
+
+      gap:
+        0.25rem;
+
+      margin:
+        1.5rem 0;
     }
 
     .cell {
-      display: flex;
-      aspect-ratio: 1;
-      min-width: 0;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-      border: 1px solid #bdbdc2;
-      border-radius: 4px;
-      background: #ffffff;
-      color: #1b1b1d;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
+      display:
+        flex;
+
+      aspect-ratio:
+        1;
+
+      align-items:
+        center;
+
+      justify-content:
+        center;
+
+      min-width:
+        0;
+
+      padding:
+        0;
+
+      border:
+        1px solid
+        var(--border);
+
+      border-radius:
+        4px;
+
+      background:
+        var(--cell-background);
+
+      color:
+        var(--text);
+
+      font-size:
+        1rem;
+
+      font-weight:
+        700;
+
+      cursor:
+        pointer;
     }
 
     .cell:hover {
-      background: #eeeeef;
+      background:
+        var(--hover-background);
     }
 
-    .cell:focus {
-      outline: 3px solid #1b1b1d;
-      outline-offset: 2px;
+    .cell:focus-visible {
+      outline:
+        3px solid
+        var(--focus);
+
+      outline-offset:
+        2px;
     }
 
     .cell.selected {
-      background: #39875b;
-      color: #ffffff;
+      border-color:
+        #39875b;
+
+      background:
+        #39875b;
+
+      color:
+        #ffffff;
     }
 
     .wordList {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      padding: 0;
-      list-style: none;
+      display:
+        flex;
+
+      flex-wrap:
+        wrap;
+
+      gap:
+        0.75rem;
+
+      padding:
+        0;
+
+      list-style:
+        none;
     }
 
     .wordItem {
-      padding: 0.6rem 0.8rem;
-      border: 1px solid #d8d8dc;
-      border-radius: 8px;
-      background: #f7f7f8;
-      font-weight: 600;
-      cursor: help;
+      padding:
+        0.6rem
+        0.8rem;
+
+      border:
+        1px solid
+        var(--border);
+
+      border-radius:
+        8px;
+
+      background:
+        var(--word-background);
+
+      color:
+        var(--text);
     }
 
     .wordItem.found {
-      background: #39875b;
-      color: #ffffff;
-      text-decoration: line-through;
+      border-color:
+        #39875b;
+
+      background:
+        #39875b;
+
+      color:
+        #ffffff;
+
+      text-decoration:
+        line-through;
     }
 
     .message {
-      min-height: 1.5rem;
-      margin-top: 1rem;
-      font-weight: 700;
+      min-height:
+        1.5rem;
+
+      margin-top:
+        1rem;
+
+      font-weight:
+        700;
     }
 
-    .progress {
-      margin-top: 1rem;
-    }
-
-    @media (max-width: 650px) {
+    @media (
+      max-width: 650px
+    ) {
       body {
-        padding: 1rem;
+        padding:
+          1rem;
       }
 
       .card {
-        padding: 1rem;
+        padding:
+          1rem;
       }
 
       .grid {
-        gap: 0.15rem;
+        gap:
+          0.15rem;
       }
 
       .cell {
-        font-size: 0.75rem;
+        font-size:
+          0.75rem;
       }
     }
   </style>
@@ -159,9 +308,11 @@ export function downloadWordSearchHtml({
         Phoneme Word Search
       </h1>
 
-      <p>
-        Find each phoneme word in the grid.
-        Select its first symbol and then its final symbol.
+      <p class="instructions">
+        Find each phoneme word
+        in the grid.
+        Select its first symbol
+        and then its final symbol.
       </p>
 
       <h2>
@@ -184,21 +335,21 @@ export function downloadWordSearchHtml({
         class="message"
         aria-live="polite"
       >
-        Select the first and last symbol of a word.
+        Select the first and
+        last symbol of a word.
       </div>
-
-      <p class="progress">
-        Found:
-        <strong id="progress">
-          0 / ${words.length}
-        </strong>
-      </p>
     </section>
   </main>
 
   <script>
-    const words = ${safeWords};
-    const gridData = ${safeGrid};
+    const words =
+      ${safeWords};
+
+    const gridData =
+      ${safeGrid};
+
+    const gridSize =
+      ${safeGridSize};
 
     const gridElement =
       document.getElementById(
@@ -215,30 +366,38 @@ export function downloadWordSearchHtml({
         "message"
       );
 
-    const progress =
-      document.getElementById(
-        "progress"
-      );
+    let selectionStart =
+      null;
 
-    let selectionStart = null;
-    let selectedCells = [];
-    let foundWords = [];
+    let selectedCells =
+      [];
+
+    let foundWords =
+      [];
 
     function normalisePhoneme(
       value
     ) {
       let result =
-        value.trim();
+        value
+          .trim()
+          .toLowerCase();
 
       if (
-        result.startsWith("/")
+        result.startsWith(
+          "/"
+        )
       ) {
         result =
-          result.slice(1);
+          result.slice(
+            1
+          );
       }
 
       if (
-        result.endsWith("/")
+        result.endsWith(
+          "/"
+        )
       ) {
         result =
           result.slice(
@@ -247,7 +406,18 @@ export function downloadWordSearchHtml({
           );
       }
 
-      return result.toLowerCase();
+      return result;
+    }
+
+    function coordinateKey(
+      row,
+      column
+    ) {
+      return (
+        row +
+        "-" +
+        column
+      );
     }
 
     function getSelectedCoordinates(
@@ -272,7 +442,9 @@ export function downloadWordSearchHtml({
             columnDifference
           );
 
-      if (!validLine) {
+      if (
+        !validLine
+      ) {
         return [];
       }
 
@@ -298,7 +470,8 @@ export function downloadWordSearchHtml({
 
       return Array.from(
         {
-          length: length
+          length:
+            length
         },
         function (
           _,
@@ -319,51 +492,43 @@ export function downloadWordSearchHtml({
       );
     }
 
-    function coordinateKey(
-      row,
-      column
-    ) {
-      return (
-        row +
-        ":" +
-        column
-      );
-    }
-
     function updateGridSelection() {
-      document
-        .querySelectorAll(
-          ".cell"
-        )
-        .forEach(
-          function (
-            cell
-          ) {
-            cell.classList.remove(
-              "selected"
-            );
-          }
-        );
+      const buttons =
+        gridElement
+          .querySelectorAll(
+            ".cell"
+          );
 
-      selectedCells.forEach(
+      buttons.forEach(
         function (
-          coordinate
+          button
         ) {
-          const cell =
-            document.querySelector(
-              '[data-key="' +
-                coordinateKey(
-                  coordinate.row,
-                  coordinate.column
-                ) +
-                '"]'
+          const key =
+            button
+              .dataset
+              .key;
+
+          const selected =
+            selectedCells.some(
+              function (
+                coordinate
+              ) {
+                return (
+                  coordinateKey(
+                    coordinate.row,
+                    coordinate.column
+                  ) ===
+                  key
+                );
+              }
             );
 
-          if (cell) {
-            cell.classList.add(
-              "selected"
+          button
+            .classList
+            .toggle(
+              "selected",
+              selected
             );
-          }
         }
       );
     }
@@ -377,9 +542,10 @@ export function downloadWordSearchHtml({
           entry
         ) {
           const item =
-            document.createElement(
-              "li"
-            );
+            document
+              .createElement(
+                "li"
+              );
 
           const target =
             normalisePhoneme(
@@ -387,31 +553,32 @@ export function downloadWordSearchHtml({
             );
 
           item.className =
-            "wordItem" +
-            (
-              foundWords.includes(
-                target
-              )
-                ? " found"
-                : ""
-            );
+            "wordItem";
+
+          if (
+            foundWords.includes(
+              target
+            )
+          ) {
+            item
+              .classList
+              .add(
+                "found"
+              );
+          }
 
           item.textContent =
-            entry.phoneme;
+            entry.phoneme +
+            " (" +
+            entry.english +
+            ")";
 
-          item.title =
-            entry.english;
-
-          wordList.appendChild(
-            item
-          );
+          wordList
+            .appendChild(
+              item
+            );
         }
       );
-
-      progress.textContent =
-        foundWords.length +
-        " / " +
-        words.length;
     }
 
     function handleCellClick(
@@ -419,11 +586,16 @@ export function downloadWordSearchHtml({
       column
     ) {
       const coordinate = {
-        row: row,
-        column: column
+        row:
+          row,
+
+        column:
+          column
       };
 
-      if (!selectionStart) {
+      if (
+        !selectionStart
+      ) {
         selectionStart =
           coordinate;
 
@@ -476,14 +648,18 @@ export function downloadWordSearchHtml({
               ];
             }
           )
-          .join("");
+          .join(
+            ""
+          );
 
       const reversedWord =
         Array.from(
           selectedWord
         )
           .reverse()
-          .join("");
+          .join(
+            ""
+          );
 
       const matchedWord =
         words.find(
@@ -512,28 +688,35 @@ export function downloadWordSearchHtml({
 
       updateGridSelection();
 
-      if (matchedWord) {
+      if (
+        matchedWord
+      ) {
         const target =
           normalisePhoneme(
-            matchedWord.phoneme
+            matchedWord
+              .phoneme
           );
 
         if (
-          !foundWords.includes(
-            target
-          )
+          !foundWords
+            .includes(
+              target
+            )
         ) {
-          foundWords.push(
-            target
-          );
+          foundWords
+            .push(
+              target
+            );
 
           updateWordList();
 
           message.textContent =
             "Found " +
-            matchedWord.phoneme +
+            matchedWord
+              .phoneme +
             ', meaning "' +
-            matchedWord.english +
+            matchedWord
+              .english +
             '".';
 
           if (
@@ -566,9 +749,10 @@ export function downloadWordSearchHtml({
             columnIndex
           ) {
             const button =
-              document.createElement(
-                "button"
-              );
+              document
+                .createElement(
+                  "button"
+                );
 
             button.type =
               "button";
@@ -601,19 +785,21 @@ export function downloadWordSearchHtml({
                 symbol
             );
 
-            button.addEventListener(
-              "click",
-              function () {
-                handleCellClick(
-                  rowIndex,
-                  columnIndex
-                );
-              }
-            );
+            button
+              .addEventListener(
+                "click",
+                function () {
+                  handleCellClick(
+                    rowIndex,
+                    columnIndex
+                  );
+                }
+              );
 
-            gridElement.appendChild(
-              button
-            );
+            gridElement
+              .appendChild(
+                button
+              );
           }
         );
       }
@@ -624,12 +810,14 @@ export function downloadWordSearchHtml({
 </body>
 </html>`;
 
-  const blob = new Blob(
-    [html],
-    {
-      type: "text/html",
-    },
-  );
+  const blob =
+    new Blob(
+      [html],
+      {
+        type:
+          "text/html",
+      },
+    );
 
   const url =
     URL.createObjectURL(
@@ -641,7 +829,8 @@ export function downloadWordSearchHtml({
       "a",
     );
 
-  link.href = url;
+  link.href =
+    url;
 
   link.download =
     "phonemeWordSearch.html";
