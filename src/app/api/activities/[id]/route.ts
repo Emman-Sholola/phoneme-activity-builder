@@ -20,6 +20,8 @@ type ActivityUpdateInput = {
   gridSize?: unknown;
   wordListId?: unknown;
   settings?: unknown;
+  wordEntryIds?: unknown;
+  answerWordId?: unknown;
 };
 
 const activityTypes = [
@@ -50,6 +52,41 @@ function getJsonValue(
   return value as Prisma.InputJsonValue;
 }
 
+function validateWordIds(
+  value: unknown,
+) {
+  if (value === undefined) {
+    return {
+      ids: undefined,
+    };
+  }
+
+  if (
+    !Array.isArray(value) ||
+    !value.every(
+      (item) =>
+        typeof item === "string" &&
+        item.trim(),
+    )
+  ) {
+    return {
+      error:
+        "Word entry IDs must be an array of valid strings.",
+    };
+  }
+
+  return {
+    ids: [
+      ...new Set(
+        value.map(
+          (item) =>
+            item.trim(),
+        ),
+      ),
+    ],
+  };
+}
+
 export async function GET(
   request: Request,
   context: RouteContext,
@@ -64,7 +101,11 @@ export async function GET(
           id,
         },
         include: {
-          wordList: true,
+          wordList: {
+            include: {
+              words: true,
+            },
+          },
           words: {
             include: {
               wordEntry: true,
@@ -125,6 +166,9 @@ export async function PUT(
         where: {
           id,
         },
+        include: {
+          words: true,
+        },
       });
 
     if (!existingActivity) {
@@ -157,7 +201,8 @@ export async function PUT(
     }
 
     if (
-      Object.keys(body).length === 0
+      Object.keys(body).length ===
+      0
     ) {
       return NextResponse.json(
         {
@@ -189,15 +234,16 @@ export async function PUT(
       );
     }
 
+    const nextType =
+      typeof body.type ===
+        "string"
+        ? body.type
+        : existingActivity.type;
+
     if (
-      body.type !== undefined &&
-      (
-        typeof body.type !==
-          "string" ||
-        !activityTypes.includes(
-          body.type as
-            (typeof activityTypes)[number],
-        )
+      !activityTypes.includes(
+        nextType as
+          (typeof activityTypes)[number],
       )
     ) {
       return NextResponse.json(
@@ -281,16 +327,8 @@ export async function PUT(
       );
     }
 
-    let wordListRelation:
-      | {
-          connect: {
-            id: string;
-          };
-        }
-      | {
-          disconnect: true;
-        }
-      | undefined;
+    let nextWordListId =
+      existingActivity.wordListId;
 
     if (
       body.wordListId !== undefined
@@ -298,21 +336,20 @@ export async function PUT(
       if (
         body.wordListId === null
       ) {
-        wordListRelation = {
-          disconnect: true,
-        };
+        nextWordListId = null;
       } else if (
         typeof body.wordListId ===
           "string" &&
         body.wordListId.trim()
       ) {
-        const wordListId =
+        nextWordListId =
           body.wordListId.trim();
 
         const wordList =
           await prisma.wordList.findUnique({
             where: {
-              id: wordListId,
+              id:
+                nextWordListId,
             },
           });
 
@@ -327,12 +364,6 @@ export async function PUT(
             },
           );
         }
-
-        wordListRelation = {
-          connect: {
-            id: wordListId,
-          },
-        };
       } else {
         return NextResponse.json(
           {
@@ -344,6 +375,234 @@ export async function PUT(
           },
         );
       }
+    }
+
+    const wordValidation =
+      validateWordIds(
+        body.wordEntryIds,
+      );
+
+    if (wordValidation.error) {
+      return NextResponse.json(
+        {
+          error:
+            wordValidation.error,
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
+    let answerWordId:
+      | string
+      | null
+      | undefined;
+
+    if (
+      body.answerWordId !==
+        undefined
+    ) {
+      if (
+        body.answerWordId === null
+      ) {
+        answerWordId = null;
+      } else if (
+        typeof body.answerWordId ===
+          "string" &&
+        body.answerWordId.trim()
+      ) {
+        answerWordId =
+          body.answerWordId.trim();
+      } else {
+        return NextResponse.json(
+          {
+            error:
+              "Answer word ID must be a valid string or null.",
+          },
+          {
+            status: 400,
+          },
+        );
+      }
+    }
+
+    const relationshipsChanging =
+      body.wordEntryIds !==
+        undefined ||
+      body.answerWordId !==
+        undefined ||
+      body.wordListId !==
+        undefined ||
+      body.type !==
+        undefined;
+
+    let relationshipData:
+      {
+        wordEntryId: string;
+        position: number;
+        isAnswer: boolean;
+      }[] | null = null;
+
+    if (relationshipsChanging) {
+      if (!nextWordListId) {
+        return NextResponse.json(
+          {
+            error:
+              "Activities containing words must use a word list.",
+          },
+          {
+            status: 400,
+          },
+        );
+      }
+
+      const currentWordIds =
+        existingActivity.words.map(
+          (relation) =>
+            relation.wordEntryId,
+        );
+
+      const suppliedWordIds =
+        wordValidation.ids;
+
+      const wordEntryIds =
+        suppliedWordIds ??
+        currentWordIds;
+
+      const currentAnswer =
+        existingActivity.words.find(
+          (relation) =>
+            relation.isAnswer,
+        )?.wordEntryId ??
+        null;
+
+      const nextAnswerWordId =
+        answerWordId !==
+        undefined
+          ? answerWordId
+          : currentAnswer;
+
+      if (
+        nextType ===
+          "WORDLE" &&
+        !nextAnswerWordId
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "A Wordle activity requires an answer word.",
+          },
+          {
+            status: 400,
+          },
+        );
+      }
+
+      if (
+        nextType ===
+          "WORD_SEARCH" &&
+        wordEntryIds.length === 0
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "A Word Search activity requires at least one word.",
+          },
+          {
+            status: 400,
+          },
+        );
+      }
+
+      const selectedIds =
+        nextType === "WORDLE"
+          ? [
+              ...wordEntryIds,
+              ...(nextAnswerWordId
+                ? [
+                    nextAnswerWordId,
+                  ]
+                : []),
+            ]
+          : wordEntryIds;
+
+      const uniqueSelectedIds = [
+        ...new Set(
+          selectedIds,
+        ),
+      ];
+
+      const selectedWords =
+        await prisma.wordEntry.findMany({
+          where: {
+            id: {
+              in:
+                uniqueSelectedIds,
+            },
+          },
+        });
+
+      if (
+        selectedWords.length !==
+        uniqueSelectedIds.length
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "One or more selected words could not be found.",
+          },
+          {
+            status: 404,
+          },
+        );
+      }
+
+      const invalidWord =
+        selectedWords.find(
+          (word) =>
+            word.wordListId !==
+            nextWordListId,
+        );
+
+      if (invalidWord) {
+        return NextResponse.json(
+          {
+            error:
+              "All selected words must belong to the selected word list.",
+          },
+          {
+            status: 400,
+          },
+        );
+      }
+
+      relationshipData =
+        nextType === "WORDLE"
+          ? uniqueSelectedIds.map(
+              (
+                wordEntryId,
+                index,
+              ) => ({
+                wordEntryId,
+                position:
+                  index + 1,
+                isAnswer:
+                  wordEntryId ===
+                  nextAnswerWordId,
+              }),
+            )
+          : wordEntryIds.map(
+              (
+                wordEntryId,
+                index,
+              ) => ({
+                wordEntryId,
+                position:
+                  index + 1,
+                isAnswer: false,
+              }),
+            );
     }
 
     const updateData:
@@ -407,13 +666,6 @@ export async function PUT(
             }
           : {}),
 
-        ...(wordListRelation
-          ? {
-              wordList:
-                wordListRelation,
-            }
-          : {}),
-
         ...(body.settings !==
         undefined
           ? {
@@ -421,6 +673,36 @@ export async function PUT(
                 getJsonValue(
                   body.settings,
                 ),
+            }
+          : {}),
+
+        ...(body.wordListId !==
+        undefined
+          ? body.wordListId ===
+            null
+            ? {
+                wordList: {
+                  disconnect:
+                    true,
+                },
+              }
+            : {
+                wordList: {
+                  connect: {
+                    id:
+                      nextWordListId as string,
+                  },
+                },
+              }
+          : {}),
+
+        ...(relationshipData
+          ? {
+              words: {
+                deleteMany: {},
+                create:
+                  relationshipData,
+              },
             }
           : {}),
       };
@@ -435,7 +717,11 @@ export async function PUT(
           updateData,
 
         include: {
-          wordList: true,
+          wordList: {
+            include: {
+              words: true,
+            },
+          },
           words: {
             include: {
               wordEntry: true,

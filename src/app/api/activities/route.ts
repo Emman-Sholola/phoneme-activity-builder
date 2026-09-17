@@ -14,6 +14,8 @@ type ActivityInput = {
   gridSize?: unknown;
   wordListId?: unknown;
   settings?: unknown;
+  wordEntryIds?: unknown;
+  answerWordId?: unknown;
 };
 
 const activityTypes = [
@@ -44,12 +46,51 @@ function getJsonValue(
   return value as Prisma.InputJsonValue;
 }
 
+function validateWordIds(
+  value: unknown,
+) {
+  if (value === undefined) {
+    return {
+      ids: [] as string[],
+    };
+  }
+
+  if (
+    !Array.isArray(value) ||
+    !value.every(
+      (item) =>
+        typeof item === "string" &&
+        item.trim(),
+    )
+  ) {
+    return {
+      error:
+        "Word entry IDs must be an array of valid strings.",
+    };
+  }
+
+  return {
+    ids: [
+      ...new Set(
+        value.map(
+          (item) =>
+            item.trim(),
+        ),
+      ),
+    ],
+  };
+}
+
 export async function GET() {
   try {
     const activities =
       await prisma.activity.findMany({
         include: {
-          wordList: true,
+          wordList: {
+            include: {
+              words: true,
+            },
+          },
           words: {
             include: {
               wordEntry: true,
@@ -164,32 +205,42 @@ export async function POST(
       );
     }
 
+    if (
+      typeof body.wordListId !==
+        "string" ||
+      !body.wordListId.trim()
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Word list ID is required.",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
     const wordListId =
-      typeof body.wordListId ===
-        "string" &&
-      body.wordListId.trim()
-        ? body.wordListId.trim()
-        : null;
+      body.wordListId.trim();
 
-    if (wordListId) {
-      const wordList =
-        await prisma.wordList.findUnique({
-          where: {
-            id: wordListId,
-          },
-        });
+    const wordList =
+      await prisma.wordList.findUnique({
+        where: {
+          id: wordListId,
+        },
+      });
 
-      if (!wordList) {
-        return NextResponse.json(
-          {
-            error:
-              "Word list not found.",
-          },
-          {
-            status: 404,
-          },
-        );
-      }
+    if (!wordList) {
+      return NextResponse.json(
+        {
+          error:
+            "Word list not found.",
+        },
+        {
+          status: 404,
+        },
+      );
     }
 
     if (
@@ -238,6 +289,178 @@ export async function POST(
       );
     }
 
+    const wordValidation =
+      validateWordIds(
+        body.wordEntryIds,
+      );
+
+    if (wordValidation.error) {
+      return NextResponse.json(
+        {
+          error:
+            wordValidation.error,
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
+    const wordEntryIds =
+      wordValidation.ids ?? [];
+
+    let answerWordId:
+      | string
+      | null = null;
+
+    if (
+      body.answerWordId !==
+        undefined
+    ) {
+      if (
+        typeof body.answerWordId !==
+          "string" ||
+        !body.answerWordId.trim()
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "Answer word ID must be a valid string.",
+          },
+          {
+            status: 400,
+          },
+        );
+      }
+
+      answerWordId =
+        body.answerWordId.trim();
+    }
+
+    if (
+      body.type === "WORDLE" &&
+      !answerWordId
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "A Wordle activity requires an answer word.",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
+    if (
+      body.type ===
+        "WORD_SEARCH" &&
+      wordEntryIds.length === 0
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "A Word Search activity requires at least one word.",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
+    const selectedIds =
+      body.type === "WORDLE"
+        ? [
+            ...(wordEntryIds ??
+              []),
+            ...(answerWordId
+              ? [answerWordId]
+              : []),
+          ]
+        : wordEntryIds;
+
+    const uniqueSelectedIds = [
+      ...new Set(
+        selectedIds,
+      ),
+    ];
+
+    if (
+      uniqueSelectedIds.length >
+      0
+    ) {
+      const selectedWords =
+        await prisma.wordEntry.findMany({
+          where: {
+            id: {
+              in:
+                uniqueSelectedIds,
+            },
+          },
+        });
+
+      if (
+        selectedWords.length !==
+        uniqueSelectedIds.length
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "One or more selected words could not be found.",
+          },
+          {
+            status: 404,
+          },
+        );
+      }
+
+      const invalidWord =
+        selectedWords.find(
+          (word) =>
+            word.wordListId !==
+            wordListId,
+        );
+
+      if (invalidWord) {
+        return NextResponse.json(
+          {
+            error:
+              "All selected words must belong to the selected word list.",
+          },
+          {
+            status: 400,
+          },
+        );
+      }
+    }
+
+    const activityWords =
+      body.type === "WORDLE"
+        ? uniqueSelectedIds.map(
+            (
+              wordEntryId,
+              index,
+            ) => ({
+              wordEntryId,
+              position:
+                index + 1,
+              isAnswer:
+                wordEntryId ===
+                answerWordId,
+            }),
+          )
+        : wordEntryIds.map(
+            (
+              wordEntryId,
+              index,
+            ) => ({
+              wordEntryId,
+              position:
+                index + 1,
+              isAnswer: false,
+            }),
+          );
+
     const activity =
       await prisma.activity.create({
         data: {
@@ -277,19 +500,35 @@ export async function POST(
               ? body.gridSize
               : null,
 
-          wordListId,
-
           settings:
             getJsonValue(
               body.settings,
             ),
+
+          wordList: {
+            connect: {
+              id: wordListId,
+            },
+          },
+
+          words: {
+            create:
+              activityWords,
+          },
         },
 
         include: {
-          wordList: true,
+          wordList: {
+            include: {
+              words: true,
+            },
+          },
           words: {
             include: {
               wordEntry: true,
+            },
+            orderBy: {
+              position: "asc",
             },
           },
         },

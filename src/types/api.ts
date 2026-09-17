@@ -81,8 +81,10 @@ export type CreateActivityInput = {
   difficulty?: Difficulty;
   maxGuesses?: number;
   gridSize?: number;
-  wordListId?: string | null;
+  wordListId: string;
   settings?: unknown;
+  wordEntryIds?: string[];
+  answerWordId?: string;
 };
 
 export type UpdateActivityInput = {
@@ -94,4 +96,6 @@ export type UpdateActivityInput = {
   gridSize?: number | null;
   wordListId?: string | null;
   settings?: unknown;
+  wordEntryIds?: string[];
+  answerWordId?: string | null;
 };
