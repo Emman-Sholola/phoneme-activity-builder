@@ -4,6 +4,7 @@ import {
   useState,
 } from "react";
 
+import ActivityManager from "@/components/manage/ActivityManager";
 import WordListManager from "@/components/manage/WordListManager";
 import WordManager from "@/components/manage/WordManager";
 
@@ -46,6 +47,15 @@ export default function ManagePage() {
         />
 
         <WordManager
+          refreshKey={
+            refreshKey
+          }
+          onChanged={
+            handleChanged
+          }
+        />
+
+        <ActivityManager
           refreshKey={
             refreshKey
           }
