@@ -240,6 +240,7 @@ html[data-theme="dark"] .darkThemeButton {
 }
 
 .formGroup input,
+.formGroup select,
 .guessControls input {
   width: 100%;
   padding: 0.75rem;
@@ -251,6 +252,7 @@ html[data-theme="dark"] .darkThemeButton {
 }
 
 .formGroup input:focus,
+.formGroup select:focus,
 .guessControls input:focus {
   outline: 3px solid var(--text);
   outline-offset: 2px;
