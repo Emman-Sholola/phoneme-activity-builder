@@ -572,3 +572,127 @@ html[data-theme="dark"] .darkThemeButton {
     height: 2.6rem;
   }
 }
+
+/* Data Management */
+
+.managementLayout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.managerHeading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.managerHeading h3 {
+  margin-bottom: 0.25rem;
+}
+
+.managerHeading p {
+  margin-top: 0;
+}
+
+.managerList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.managerItem {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--background);
+}
+
+.managerItem p {
+  margin: 0.35rem 0;
+}
+
+.managerItem small {
+  display: block;
+}
+
+.managerActions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.5rem;
+}
+
+.compactButton {
+  margin-top: 0;
+  padding: 0.5rem 0.75rem;
+}
+
+.dangerButton {
+  padding: 0.75rem 1rem;
+  border: 1px solid #a63d40;
+  border-radius: 8px;
+  background: transparent;
+  color: #c94f52;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dangerButton:hover {
+  background: #a63d40;
+  color: #ffffff;
+}
+
+.dangerButton:focus-visible {
+  outline: 3px solid var(--text);
+  outline-offset: 3px;
+}
+
+.formGroup textarea {
+  width: 100%;
+  min-height: 6rem;
+  resize: vertical;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--background);
+  color: var(--text);
+  font: inherit;
+}
+
+.formGroup textarea:focus {
+  outline: 3px solid var(--text);
+  outline-offset: 2px;
+}
+
+.managerWordEnglish {
+  font-weight: 500;
+}
+
+@media (max-width: 850px) {
+  .managementLayout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 550px) {
+  .managerItem,
+  .managerHeading {
+    flex-direction: column;
+  }
+
+  .managerActions {
+    width: 100%;
+  }
+
+  .managerActions button {
+    flex: 1;
+  }
+}
