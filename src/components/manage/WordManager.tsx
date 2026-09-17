@@ -27,64 +27,36 @@ export default function WordManager({
   refreshKey,
   onChanged,
 }: WordManagerProps) {
-  const [
-    words,
-    setWords,
-  ] =
+  const [words, setWords] =
     useState<WordEntry[]>([]);
 
-  const [
-    wordLists,
-    setWordLists,
-  ] =
+  const [wordLists, setWordLists] =
     useState<WordList[]>([]);
 
-  const [
-    selectedId,
-    setSelectedId,
-  ] =
+  const [selectedId, setSelectedId] =
     useState("");
 
   const [
     selectedListId,
     setSelectedListId,
-  ] =
+  ] = useState("");
+
+  const [phoneme, setPhoneme] =
     useState("");
 
-  const [
-    phoneme,
-    setPhoneme,
-  ] =
+  const [english, setEnglish] =
     useState("");
 
-  const [
-    english,
-    setEnglish,
-  ] =
+  const [hint, setHint] =
     useState("");
 
-  const [
-    hint,
-    setHint,
-  ] =
-    useState("");
-
-  const [
-    loading,
-    setLoading,
-  ] =
+  const [loading, setLoading] =
     useState(true);
 
-  const [
-    saving,
-    setSaving,
-  ] =
+  const [saving, setSaving] =
     useState(false);
 
-  const [
-    message,
-    setMessage,
-  ] =
+  const [message, setMessage] =
     useState("");
 
   const filteredWords =
@@ -103,10 +75,8 @@ export default function WordManager({
       selectedListId,
     ]);
 
-  async function loadData() {
+  async function refreshData() {
     try {
-      setLoading(true);
-
       const [
         loadedWords,
         loadedLists,
@@ -124,27 +94,109 @@ export default function WordManager({
         loadedLists,
       );
 
-      if (
-        !selectedListId &&
-        loadedLists.length > 0
-      ) {
-        setSelectedListId(
-          loadedLists[0].id,
-        );
-      }
+      setSelectedListId(
+        (currentId) => {
+          const currentListStillExists =
+            loadedLists.some(
+              (wordList) =>
+                wordList.id ===
+                currentId,
+            );
+
+          if (
+            currentId &&
+            currentListStillExists
+          ) {
+            return currentId;
+          }
+
+          return (
+            loadedLists[0]?.id ??
+            ""
+          );
+        },
+      );
+
+      return true;
     } catch (error) {
       setMessage(
         error instanceof Error
           ? error.message
           : "Failed to load phoneme words.",
       );
-    } finally {
-      setLoading(false);
+
+      return false;
     }
   }
 
   useEffect(() => {
-    void loadData();
+    let cancelled = false;
+
+    Promise.all([
+      getWords(),
+      getWordLists(),
+    ])
+      .then(
+        ([
+          loadedWords,
+          loadedLists,
+        ]) => {
+          if (cancelled) {
+            return;
+          }
+
+          setWords(
+            loadedWords,
+          );
+
+          setWordLists(
+            loadedLists,
+          );
+
+          setSelectedListId(
+            (currentId) => {
+              const currentListStillExists =
+                loadedLists.some(
+                  (wordList) =>
+                    wordList.id ===
+                    currentId,
+                );
+
+              if (
+                currentId &&
+                currentListStillExists
+              ) {
+                return currentId;
+              }
+
+              return (
+                loadedLists[0]?.id ??
+                ""
+              );
+            },
+          );
+        },
+      )
+      .catch((error: unknown) => {
+        if (cancelled) {
+          return;
+        }
+
+        setMessage(
+          error instanceof Error
+            ? error.message
+            : "Failed to load phoneme words.",
+        );
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [refreshKey]);
 
   function clearForm() {
@@ -216,11 +268,14 @@ export default function WordManager({
           {
             phoneme:
               phoneme.trim(),
+
             english:
               english.trim(),
+
             hint:
               hint.trim() ||
               null,
+
             wordListId:
               selectedListId,
           },
@@ -233,11 +288,14 @@ export default function WordManager({
         await createWord({
           phoneme:
             phoneme.trim(),
+
           english:
             english.trim(),
+
           hint:
             hint.trim() ||
             null,
+
           wordListId:
             selectedListId,
         });
@@ -252,7 +310,7 @@ export default function WordManager({
       setEnglish("");
       setHint("");
 
-      await loadData();
+      await refreshData();
 
       onChanged();
     } catch (error) {
@@ -290,7 +348,7 @@ export default function WordManager({
         clearForm();
       }
 
-      await loadData();
+      await refreshData();
 
       setMessage(
         "Phoneme word deleted successfully.",

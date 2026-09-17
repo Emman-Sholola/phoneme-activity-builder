@@ -87,9 +87,34 @@ export default function WordListManager({
     }
   }
 
-  useEffect(() => {
-    void loadWordLists();
-  }, [refreshKey]);
+ useEffect(() => {
+  let cancelled = false;
+
+  getWordLists()
+    .then((result) => {
+      if (!cancelled) {
+        setWordLists(result);
+      }
+    })
+    .catch((error: unknown) => {
+      if (!cancelled) {
+        setMessage(
+          error instanceof Error
+            ? error.message
+            : "Failed to load word lists.",
+        );
+      }
+    })
+    .finally(() => {
+      if (!cancelled) {
+        setLoading(false);
+      }
+    });
+
+  return () => {
+    cancelled = true;
+  };
+}, [refreshKey]);
 
   function clearForm() {
     setSelectedId("");
