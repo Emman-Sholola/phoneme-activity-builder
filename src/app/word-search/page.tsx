@@ -22,6 +22,48 @@ import type {
   Activity,
 } from "@/types/api";
 
+type UsageEventType =
+  | "GENERATION_ATTEMPTED"
+  | "GENERATION_SUCCEEDED"
+  | "GENERATION_FAILED";
+
+async function recordGenerationEvent(
+  eventType: UsageEventType,
+  activityId: string,
+  metadata?: Record<string, unknown>,
+) {
+  try {
+    await fetch("/api/usage-events", {
+      method: "POST",
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+      body: JSON.stringify({
+        eventType,
+        activityType:
+          "WORD_SEARCH",
+        activityId:
+          activityId || undefined,
+        success:
+          eventType ===
+          "GENERATION_SUCCEEDED"
+            ? true
+            : eventType ===
+                "GENERATION_FAILED"
+              ? false
+              : undefined,
+        metadata,
+      }),
+    });
+  } catch (eventError) {
+    console.error(
+      "Failed to record Word Search generation event:",
+      eventError,
+    );
+  }
+}
+
 function getActivityWords(
   activity: Activity,
 ): WordSearchWord[] {
@@ -218,12 +260,83 @@ export default function WordSearchPage() {
     );
   }
 
-  function handleGenerate() {
-    downloadWordSearchHtml({
-      words,
-      grid,
-      gridSize,
-    });
+  async function handleGenerate() {
+    setError("");
+
+    await recordGenerationEvent(
+      "GENERATION_ATTEMPTED",
+      selectedActivityId,
+      {
+        gridSize,
+        wordCount:
+          words.length,
+      },
+    );
+
+    try {
+      if (
+        words.length === 0
+      ) {
+        throw new Error(
+          "At least one word is required before generation.",
+        );
+      }
+
+      const invalidWord =
+        words.find(
+          (word) =>
+            !word.phoneme.trim() ||
+            !word.english.trim(),
+        );
+
+      if (
+        invalidWord
+      ) {
+        throw new Error(
+          "Every Word Search entry requires both a phoneme and an English word.",
+        );
+      }
+
+      downloadWordSearchHtml({
+        words,
+        grid,
+        gridSize,
+      });
+
+      await recordGenerationEvent(
+        "GENERATION_SUCCEEDED",
+        selectedActivityId,
+        {
+          gridSize,
+          wordCount:
+            words.length,
+        },
+      );
+    } catch (
+      generationError
+    ) {
+      const message =
+        generationError instanceof
+          Error
+          ? generationError.message
+          : "Failed to generate the Word Search activity.";
+
+      setError(
+        message,
+      );
+
+      await recordGenerationEvent(
+        "GENERATION_FAILED",
+        selectedActivityId,
+        {
+          reason:
+            message,
+          gridSize,
+          wordCount:
+            words.length,
+        },
+      );
+    }
   }
 
   const previewKey =

@@ -9,6 +9,7 @@ import "./globals.css";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Navbar from "@/components/Navbar";
+import PageTracker from "@/components/PageTracker";
 import {
   ThemeProvider,
   type ThemePreference,
@@ -114,6 +115,8 @@ export default async function RootLayout({
             initialPreference
           }
         >
+          <PageTracker />
+
           <Header />
 
           <Navbar />

@@ -85,3 +85,30 @@ model ActivityWord {
   @@id([activityId, wordEntryId])
   @@index([activityId, position])
 }
+model UsageEvent {
+  id           String       @id @default(cuid())
+  eventType    UsageEventType
+  activityType ActivityType?
+  activityId   String?
+  page         String?
+  durationMs   Int?
+  success      Boolean?
+  metadata     Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([eventType])
+  @@index([activityType])
+  @@index([createdAt])
+}
+
+enum UsageEventType {
+  PAGE_VIEW
+  PAGE_DURATION
+  ACTIVITY_CREATED
+  ACTIVITY_UPDATED
+  ACTIVITY_DELETED
+  GENERATION_ATTEMPTED
+  GENERATION_SUCCEEDED
+  GENERATION_FAILED
+}

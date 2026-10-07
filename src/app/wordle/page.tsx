@@ -17,6 +17,47 @@ import type {
   Activity,
 } from "@/types/api";
 
+type UsageEventType =
+  | "GENERATION_ATTEMPTED"
+  | "GENERATION_SUCCEEDED"
+  | "GENERATION_FAILED";
+
+async function recordGenerationEvent(
+  eventType: UsageEventType,
+  activityId: string,
+  metadata?: Record<string, unknown>,
+) {
+  try {
+    await fetch("/api/usage-events", {
+      method: "POST",
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+      body: JSON.stringify({
+        eventType,
+        activityType: "WORDLE",
+        activityId:
+          activityId || undefined,
+        success:
+          eventType ===
+          "GENERATION_SUCCEEDED"
+            ? true
+            : eventType ===
+                "GENERATION_FAILED"
+              ? false
+              : undefined,
+        metadata,
+      }),
+    });
+  } catch (eventError) {
+    console.error(
+      "Failed to record Wordle generation event:",
+      eventError,
+    );
+  }
+}
+
 export default function WordlePage() {
   const [
     activities,
@@ -167,12 +208,63 @@ export default function WordlePage() {
     }
   }
 
-  function handleGenerate() {
-    downloadWordleHtml({
-      phonemeWord,
-      englishWord,
-      maxGuesses,
-    });
+  async function handleGenerate() {
+    setError("");
+
+    await recordGenerationEvent(
+      "GENERATION_ATTEMPTED",
+      selectedActivityId,
+      {
+        maxGuesses,
+      },
+    );
+
+    try {
+      if (
+        !phonemeWord.trim() ||
+        !englishWord.trim()
+      ) {
+        throw new Error(
+          "A phoneme word and English word are required before generation.",
+        );
+      }
+
+      downloadWordleHtml({
+        phonemeWord,
+        englishWord,
+        maxGuesses,
+      });
+
+      await recordGenerationEvent(
+        "GENERATION_SUCCEEDED",
+        selectedActivityId,
+        {
+          maxGuesses,
+        },
+      );
+    } catch (
+      generationError
+    ) {
+      const message =
+        generationError instanceof
+          Error
+          ? generationError.message
+          : "Failed to generate the Wordle activity.";
+
+      setError(
+        message,
+      );
+
+      await recordGenerationEvent(
+        "GENERATION_FAILED",
+        selectedActivityId,
+        {
+          reason:
+            message,
+          maxGuesses,
+        },
+      );
+    }
   }
 
   const previewKey =

@@ -2,8 +2,10 @@ import { NextResponse } from "next/server";
 
 import {
   Prisma,
+  UsageEventType,
 } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
+import { recordUsageEventSafely } from "@/lib/usage-events";
 
 type RouteContext = {
   params: Promise<{
@@ -733,6 +735,22 @@ export async function PUT(
         },
       });
 
+    await recordUsageEventSafely({
+      eventType:
+        UsageEventType.ACTIVITY_UPDATED,
+      activityType:
+        updatedActivity.type,
+      activityId:
+        updatedActivity.id,
+      success: true,
+      metadata: {
+        name:
+          updatedActivity.name,
+        difficulty:
+          updatedActivity.difficulty,
+      },
+    });
+
     return NextResponse.json(
       updatedActivity,
       {
@@ -787,6 +805,20 @@ export async function DELETE(
     await prisma.activity.delete({
       where: {
         id,
+      },
+    });
+
+    await recordUsageEventSafely({
+      eventType:
+        UsageEventType.ACTIVITY_DELETED,
+      activityType:
+        existingActivity.type,
+      activityId:
+        existingActivity.id,
+      success: true,
+      metadata: {
+        name:
+          existingActivity.name,
       },
     });
 

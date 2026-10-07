@@ -2,8 +2,10 @@ import { NextResponse } from "next/server";
 
 import {
   Prisma,
+  UsageEventType,
 } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
+import { recordUsageEventSafely } from "@/lib/usage-events";
 
 type ActivityInput = {
   name?: unknown;
@@ -533,6 +535,22 @@ export async function POST(
           },
         },
       });
+
+    await recordUsageEventSafely({
+      eventType:
+        UsageEventType.ACTIVITY_CREATED,
+      activityType:
+        activity.type,
+      activityId:
+        activity.id,
+      success: true,
+      metadata: {
+        name:
+          activity.name,
+        difficulty:
+          activity.difficulty,
+      },
+    });
 
     return NextResponse.json(
       activity,
