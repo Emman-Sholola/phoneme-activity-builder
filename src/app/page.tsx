@@ -1,131 +1,74 @@
-"use client";
+import Link from "next/link";
 
-import { useEffect, useState } from "react";
-
-import WordlePreview from "@/components/wordle/WordlePreview";
-import WordleSettings from "@/components/wordle/WordleSettings";
-import { downloadWordleHtml } from "@/lib/wordle/generator";
-import { getActivities } from "@/services/api";
-import type { Activity } from "@/types/api";
-
-export default function WordlePage() {
-  const [activities, setActivities] = useState<Activity[]>([]);
-  const [selectedActivityId, setSelectedActivityId] = useState("");
-
-  const [phonemeWord, setPhonemeWord] = useState("/θɪn/");
-  const [englishWord, setEnglishWord] = useState("thin");
-  const [maxGuesses, setMaxGuesses] = useState(5);
-
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  function applyActivity(activity: Activity) {
-    const answerRelation =
-      activity.words.find((word) => word.isAnswer) ??
-      activity.words[0];
-
-    if (!answerRelation) {
-      setError(
-        "The selected activity does not have an assigned answer word.",
-      );
-      return;
-    }
-
-    setError("");
-
-    setPhonemeWord(answerRelation.wordEntry.phoneme);
-    setEnglishWord(answerRelation.wordEntry.english);
-    setMaxGuesses(activity.maxGuesses ?? 5);
-  }
-
-  useEffect(() => {
-    async function loadActivities() {
-      try {
-        const result = await getActivities();
-
-        const wordleActivities = result.filter(
-          (activity) => activity.type === "WORDLE",
-        );
-
-        setActivities(wordleActivities);
-
-        if (wordleActivities.length > 0) {
-          const firstActivity = wordleActivities[0];
-
-          setSelectedActivityId(firstActivity.id);
-          applyActivity(firstActivity);
-        }
-      } catch (loadError) {
-        setError(
-          loadError instanceof Error
-            ? loadError.message
-            : "Failed to load saved activities.",
-        );
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    void loadActivities();
-  }, []);
-
-  function handleActivityChange(activityId: string) {
-    setSelectedActivityId(activityId);
-
-    const activity = activities.find(
-      (item) => item.id === activityId,
-    );
-
-    if (activity) {
-      applyActivity(activity);
-    }
-  }
-
-  function handleGenerate() {
-    downloadWordleHtml({
-      phonemeWord,
-      englishWord,
-      maxGuesses,
-    });
-  }
-
-  const previewKey =
-    `${selectedActivityId}-${phonemeWord}-${englishWord}-${maxGuesses}`;
-
+export default function HomePage() {
   return (
     <section>
       <div className="page-heading">
-        <h2>Wordle Builder</h2>
+        <h2>Phoneme Activity Builder</h2>
 
         <p>
-          Load a saved phoneme activity from the database,
-          preview it, adjust its settings, and generate a
-          standalone HTML activity.
+          Create, manage, monitor, and generate phoneme based classroom
+          activities using stored PostgreSQL data and reusable Wordle and Word
+          Search configurations.
         </p>
       </div>
 
-      <div className="builderLayout">
-        <WordleSettings
-          activities={activities}
-          selectedActivityId={selectedActivityId}
-          loading={loading}
-          error={error}
-          phonemeWord={phonemeWord}
-          englishWord={englishWord}
-          maxGuesses={maxGuesses}
-          onActivityChange={handleActivityChange}
-          onPhonemeChange={setPhonemeWord}
-          onEnglishChange={setEnglishWord}
-          onMaxGuessesChange={setMaxGuesses}
-          onGenerate={handleGenerate}
-        />
+      <div className="activity-grid">
+        <Link
+          href="/wordle"
+          className="activity-card"
+        >
+          <h3>Wordle Builder</h3>
 
-        <WordlePreview
-          key={previewKey}
-          phonemeWord={phonemeWord}
-          englishWord={englishWord}
-          maxGuesses={maxGuesses}
-        />
+          <p>
+            Load a saved Wordle configuration, preview the activity, adjust its
+            phoneme settings, and generate a standalone HTML activity.
+          </p>
+
+          <span>Open Wordle Builder →</span>
+        </Link>
+
+        <Link
+          href="/word-search"
+          className="activity-card"
+        >
+          <h3>Word Search Builder</h3>
+
+          <p>
+            Build and preview phoneme based Word Search activities using stored
+            word lists and database backed activity settings.
+          </p>
+
+          <span>Open Word Search Builder →</span>
+        </Link>
+
+        <Link
+          href="/manage"
+          className="activity-card"
+        >
+          <h3>Manage Data</h3>
+
+          <p>
+            Create, update, and delete word lists, phoneme entries, and saved
+            activity configurations used by the builders.
+          </p>
+
+          <span>Manage Stored Data →</span>
+        </Link>
+
+        <Link
+          href="/dashboard"
+          className="activity-card"
+        >
+          <h3>Dashboard</h3>
+
+          <p>
+            View application health, stored data summaries, activity generation
+            statistics, usage metrics, and recent operational events.
+          </p>
+
+          <span>View Dashboard →</span>
+        </Link>
       </div>
     </section>
   );
