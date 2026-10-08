@@ -654,10 +654,15 @@ html[data-theme="dark"] .darkThemeButton {
   border: 1px solid #a63d40;
   border-radius: 8px;
   background: transparent;
-  color: #c94f52;
+  color: #b93d42;
   font: inherit;
   font-weight: 600;
   cursor: pointer;
+}
+
+html[data-theme="dark"] .dangerButton {
+  border-color: #e27679;
+  color: #f08a8d;
 }
 
 .dangerButton:hover {
@@ -665,9 +670,9 @@ html[data-theme="dark"] .darkThemeButton {
   color: #ffffff;
 }
 
-.dangerButton:focus-visible {
-  outline: 3px solid var(--text);
-  outline-offset: 3px;
+html[data-theme="dark"] .dangerButton:hover {
+  background: #b84e52;
+  color: #ffffff;
 }
 
 .formGroup textarea {
