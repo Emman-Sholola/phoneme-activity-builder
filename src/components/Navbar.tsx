@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 
 export default function Navbar() {
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen] =
+    useState(false);
 
   function closeMenu() {
     setMenuOpen(false);
@@ -19,10 +20,15 @@ export default function Navbar() {
         type="button"
         className="menu-toggle"
         onClick={() => {
-          setMenuOpen((current) => !current);
+          setMenuOpen(
+            (current) =>
+              !current,
+          );
         }}
         aria-label="Toggle navigation menu"
-        aria-expanded={menuOpen}
+        aria-expanded={
+          menuOpen
+        }
         aria-controls="primary-navigation-links"
       >
         ☰
@@ -30,46 +36,71 @@ export default function Navbar() {
 
       <div
         id="primary-navigation-links"
-        className={`nav-links ${menuOpen ? "open" : ""}`}
+        className={`nav-links ${
+          menuOpen
+            ? "open"
+            : ""
+        }`}
       >
         <Link
           href="/"
-          onClick={closeMenu}
+          onClick={
+            closeMenu
+          }
         >
           Home
         </Link>
 
         <Link
           href="/wordle"
-          onClick={closeMenu}
+          onClick={
+            closeMenu
+          }
         >
           Wordle
         </Link>
 
         <Link
           href="/word-search"
-          onClick={closeMenu}
+          onClick={
+            closeMenu
+          }
         >
           Word Search
         </Link>
 
         <Link
           href="/manage"
-          onClick={closeMenu}
+          onClick={
+            closeMenu
+          }
         >
           Manage
         </Link>
 
         <Link
+          href="/dashboard"
+          onClick={
+            closeMenu
+          }
+        >
+          Dashboard
+        </Link>
+
+        <Link
           href="/about"
-          onClick={closeMenu}
+          onClick={
+            closeMenu
+          }
         >
           About
         </Link>
 
         <Link
           href="/settings"
-          onClick={closeMenu}
+          onClick={
+            closeMenu
+          }
         >
           Settings
         </Link>
